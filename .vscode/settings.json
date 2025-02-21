@@ -1,0 +1,138 @@
+{
+  "commit-message-editor.staticTemplate": [
+    "feat: Descrição curta",
+    "",
+    "Corpo da mensagem",
+    "",
+    "Rodapé da mensagem"
+  ],
+  "commit-message-editor.dynamicTemplate": [
+    "{type}{scope}: {is_dev}{description}",
+    "",
+    "{body}",
+    "",
+    "{breaking_change}{taskid}",
+    "{footer}"
+  ],
+  "commit-message-editor.tokens": [
+    {
+      "label": "Tipo",
+      "name": "type",
+      "type": "enum",
+      "description": "Tipo de alteração",
+      "options": [
+        {
+          "label": "---",
+          "value": ""
+        },
+        {
+          "label": "feat",
+          "value": "feat",
+          "description": "Uma alteração de uma NOVIDADE."
+        },
+        {
+          "label": "fix",
+          "value": "fix",
+          "description": "Uma alteração que é uma CORREÇÂO."
+        },
+        {
+          "label": "chore",
+          "value": "chore",
+          "description": "Uma alteração que não é nem uma novidade e nem uma correção."
+        },
+        {
+          "label": "build",
+          "description": "Alterações que afetam o sistema de construção ou dependências externas (exemplos de escopos: gulp, broccoli, npm)"
+        },
+        {
+          "label": "docs",
+          "description": "Alterações na documentação (nenhum arquivo de programação)"
+        },
+        {
+          "label": "refactor",
+          "description": "Uma mudança de código que não corrige um bug nem adiciona um recurso"
+        },
+        {
+          "label": "test",
+          "description": "Alteração para efetuar um teste específico"
+        }
+      ]
+    },
+    {
+      "label": "Escopo",
+      "name": "scope",
+      "type": "enum",
+      "description": "Qual o escopo? (Componente, Página, etc)",
+      "prefix": "(",
+      "suffix": ")",
+      "options": [
+        {
+          "label": "---",
+          "value": ""
+        },
+        {
+          "label": "Git Task",
+          "value": "git-task"
+        },
+        {
+          "label": "Git Release",
+          "value": "git-release"
+        },
+        {
+          "label": "Git Init",
+          "value": "git-init"
+        },
+        {
+          "label": "Git Deploy",
+          "value": "git-deploy"
+        }
+      ]
+    },
+    {
+      "label": "Descrição Curta",
+      "name": "description",
+      "type": "text",
+      "description": "Uma descrição curta do que foi feito, como se fosse um título."
+    },
+    {
+      "label": "Detalhe",
+      "name": "body",
+      "type": "text",
+      "description": "Uma mensagem detalhada do que foi feito no commit.",
+      "maxLines": 10,
+      "multiline": true,
+      "lines": 5
+    },
+    {
+      "label": "É URGENTE?",
+      "name": "breaking_change",
+      "type": "boolean",
+      "value": "URGENT !",
+      "description": "Esse commit foi sobre uma demanda feita com urgência?",
+      "suffix": ":"
+    },
+    {
+      "label": "Em Desenvolvimento",
+      "name": "is_dev",
+      "type": "boolean",
+      "value": "dev",
+      "description": "No meio do desenvolvimento, ainda precisa ser finalizado.",
+      "prefix": "[",
+      "suffix": "] "
+    },
+    {
+      "label": "Rodapé",
+      "name": "footer",
+      "type": "text",
+      "description": "Um rodapé livre pro commit (opcional)",
+      "multiline": true
+    },
+    {
+      "label": "N. Chamado",
+      "name": "taskid",
+      "type": "text",
+      "description": "Número de um Chamado pra essa tarefa (opcional)",
+      "prefix": "TASK: "
+    }
+  ]
+}
