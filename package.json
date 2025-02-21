@@ -13,7 +13,8 @@
     "gt:release:homolog": "git task release homolog",
     "gt:release:production": "git task release production",
     "gt:finish": "git task finish",
-    "gt:finish:force": "git task finish --force"
+    "gt:finish:force": "git task finish --force",
+    "gt:publish": "./.builds/publish.sh"
   },
   "repository": {
     "type": "git",
