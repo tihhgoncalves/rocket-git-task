@@ -65,17 +65,19 @@ case "$COMMAND" in
   "deploy")
     load_config
     if [ "$PARAM" = "homolog" ]; then
+      ORIGINAL_BRANCH=$(git branch --show-current)
       echo "🚀 Enviando para homologação..."
       git checkout "$DEV_BRANCH"
       git merge --no-ff --no-edit "$(git branch --show-current)"
       git push
-      git checkout "$(git branch --show-current)"
+      git checkout "$ORIGINAL_BRANCH"
     elif [ "$PARAM" = "production" ]; then
+      ORIGINAL_BRANCH=$(git branch --show-current)
       echo "🚀 Enviando para produção..."
       git checkout "$PROD_BRANCH"
       git merge --no-ff --no-edit "$DEV_BRANCH"
       git push
-      git checkout "$(git branch --show-current)"
+      git checkout "$ORIGINAL_BRANCH"
     else
       echo "❌ Destino inválido. Use 'homolog' ou 'production'."
       exit 1
