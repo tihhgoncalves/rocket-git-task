@@ -103,6 +103,12 @@ case "$COMMAND" in
 
     if [ "$TARGET_BRANCH" = "$PROD_BRANCH" ]; then
       standard-version && git push && git push --tags
+
+      echo "🔄 Atualizando develop com o release da produção..."
+      git checkout "$DEV_BRANCH"
+      git merge --no-ff --no-edit "$PROD_BRANCH"
+      git push
+      
     else
       standard-version --prerelease beta && git push && git push --tags
     fi
