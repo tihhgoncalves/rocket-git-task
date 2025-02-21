@@ -5,6 +5,16 @@
   "bin": {
     "git-task": "./git-task.sh"
   },
+  "scripts": {
+    "gt:init": "git task init",
+    "gt:create": "git task create",
+    "gt:deploy:homolog": "git task deploy homolog",
+    "gt:deploy:production": "git task deploy production",
+    "gt:release:homolog": "git task release homolog",
+    "gt:release:production": "git task release production",
+    "gt:finish": "git task finish",
+    "gt:finish:force": "git task finish --force"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/tihhgoncalves/rocket-git-task.git"
