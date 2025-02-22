@@ -1,12 +1,11 @@
 #!/bin/bash
 set -e
 
-CONFIG_FILE=".git-task-config"
-
 load_config() {
-  if [ -f "$CONFIG_FILE" ]; then
-    source "$CONFIG_FILE"
-  else
+  PROD_BRANCH=$(git config task.prod-branch)
+  DEV_BRANCH=$(git config task.dev-branch)
+
+  if [ -z "$PROD_BRANCH" ] || [ -z "$DEV_BRANCH" ]; then
     echo "❌ Configuração não encontrada! Execute 'git task init' primeiro."
     exit 1
   fi
@@ -19,20 +18,17 @@ case "$COMMAND" in
   "init")
     echo "🔧 Inicializando Git Task..."
 
-    # Pergunta qual branch usar para produção e homologação
     read -p "Qual branch será usado para PRODUÇÃO? (padrão: main) " PROD_BRANCH
     PROD_BRANCH=${PROD_BRANCH:-main}
 
     read -p "Qual branch será usado para HOMOLOGAÇÃO? (padrão: develop) " DEV_BRANCH
     DEV_BRANCH=${DEV_BRANCH:-develop}
 
-    # Salva a configuração no arquivo
-    echo "PROD_BRANCH=$PROD_BRANCH" > "$CONFIG_FILE"
-    echo "DEV_BRANCH=$DEV_BRANCH" >> "$CONFIG_FILE"
+    git config task.prod-branch "$PROD_BRANCH"
+    git config task.dev-branch "$DEV_BRANCH"
 
     echo "✅ Configuração salva! Produção: '$PROD_BRANCH', Homologação: '$DEV_BRANCH'."
-
-    # Verifica se o branch de homologação existe, se não, cria
+    
     if ! git show-ref --quiet refs/heads/"$DEV_BRANCH"; then
       echo "⚙️ Criando branch de homologação: $DEV_BRANCH..."
       git checkout -b "$DEV_BRANCH"
@@ -40,7 +36,6 @@ case "$COMMAND" in
       echo "✅ Branch de homologação '$DEV_BRANCH' já existe."
     fi
 
-    # Verifica se o branch de produção existe, se não, cria
     if ! git show-ref --quiet refs/heads/"$PROD_BRANCH"; then
       echo "⚙️ Criando branch de produção: $PROD_BRANCH..."
       git checkout -b "$PROD_BRANCH"
@@ -48,9 +43,7 @@ case "$COMMAND" in
       echo "✅ Branch de produção '$PROD_BRANCH' já existe."
     fi
 
-    # Volta para o branch de homologação
     git checkout "$DEV_BRANCH"
-
     echo "🎉 Git Task inicializado com sucesso!"
     ;;
 
@@ -64,24 +57,22 @@ case "$COMMAND" in
 
   "deploy")
     load_config
+    ORIGINAL_BRANCH=$(git branch --show-current)
     if [ "$PARAM" = "homolog" ]; then
-      ORIGINAL_BRANCH=$(git branch --show-current)
       echo "🚀 Enviando para homologação..."
       git checkout "$DEV_BRANCH"
-      git merge --no-ff --no-edit "$(git branch --show-current)"
+      git merge --no-ff --no-edit "$ORIGINAL_BRANCH"
       git push
-      git checkout "$ORIGINAL_BRANCH"
     elif [ "$PARAM" = "production" ]; then
-      ORIGINAL_BRANCH=$(git branch --show-current)
       echo "🚀 Enviando para produção..."
       git checkout "$PROD_BRANCH"
       git merge --no-ff --no-edit "$DEV_BRANCH"
       git push
-      git checkout "$ORIGINAL_BRANCH"
     else
       echo "❌ Destino inválido. Use 'homolog' ou 'production'."
       exit 1
     fi
+    git checkout "$ORIGINAL_BRANCH"
     ;;
 
   "release")
@@ -103,12 +94,10 @@ case "$COMMAND" in
 
     if [ "$TARGET_BRANCH" = "$PROD_BRANCH" ]; then
       standard-version && git push && git push --tags
-
       echo "🔄 Atualizando develop com o release da produção..."
       git checkout "$DEV_BRANCH"
       git merge --no-ff --no-edit "$PROD_BRANCH"
       git push
-      
     else
       standard-version --prerelease beta && git push && git push --tags
     fi
@@ -127,7 +116,6 @@ case "$COMMAND" in
     fi
 
     echo "✅ Finalizando a tarefa '$CURRENT_BRANCH'..."
-    
     git checkout "$DEV_BRANCH"
     git pull
 
