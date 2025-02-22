@@ -83,8 +83,6 @@ git task release homolog     # Para homologação
 
 ### **6️⃣ Finalizar uma task**
 
-Após a task ser mergeada, exclua o branch:
-
 ```sh
 git task finish
 ```
@@ -95,14 +93,20 @@ Caso a task **ainda não tenha sido mergeada**, o comando avisará. Se quiser **
 git task finish --force
 ```
 
+Se a task ainda precisar ser enviada para homologação, o comando sugerirá:
+
+```sh
+git task deploy homolog
+```
+
 ---
 
 ## ⚙️ Configuração
 
-O `git-task` salva suas configurações no arquivo `.git-task-config`, incluindo:
+O `git-task` salva suas configurações diretamente no **`.git/config`**, evitando arquivos extras no repositório:
 
-- **PROD_BRANCH**: Branch usado para produção (`main`, `master`, etc.).
-- **DEV_BRANCH**: Branch usado para homologação (`develop`, `dev`, etc.).
+- **task.prod-branch**: Branch usado para produção (`main`, `master`, etc.).
+- **task.dev-branch**: Branch usado para homologação (`develop`, `dev`, etc.).
 
 Para redefinir a configuração, basta rodar:
 
