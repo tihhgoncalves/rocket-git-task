@@ -115,9 +115,15 @@ case "$COMMAND" in
         git push origin --delete "$CURRENT_BRANCH" >/dev/null 2>&1 || true
         echo "✅ Task forçada e excluída com sucesso!"
       else
+        echo ""
         echo "❌ A task '$CURRENT_BRANCH' ainda não foi integrada ao '$DEV_BRANCH'."
+        echo ""
         echo "👉 Se quiser excluí-la mesmo assim, use:"
         echo "   git task finish --force"
+        echo ""
+        echo "👉 Ou envie ao '$DEV_BRANCH' usando:"
+        echo "   git task deploy homolog"        
+        echo ""
         git checkout "$CURRENT_BRANCH" >/dev/null 2>&1
         exit 1
       fi
