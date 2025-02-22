@@ -1,6 +1,17 @@
 #!/bin/bash
 set -e
 
+check_uncommitted_changes() {
+  if ! git diff --quiet || ! git diff --cached --quiet; then
+    echo ""
+    echo ""
+    echo "❌ Existem alterações não commitadas. Faça o commit ou stash antes de continuar."
+    echo ""
+    echo ""
+    exit 1
+  fi
+}
+
 load_config() {
   PROD_BRANCH=$(git config task.prod-branch)
   DEV_BRANCH=$(git config task.dev-branch)
@@ -40,6 +51,7 @@ case "$COMMAND" in
 
   "create")
     load_config
+    check_uncommitted_changes
     echo "📌 Criando task: $PARAM"
     git checkout "$DEV_BRANCH" >/dev/null 2>&1
     git pull >/dev/null 2>&1
@@ -49,6 +61,7 @@ case "$COMMAND" in
 
   "deploy")
     load_config
+    check_uncommitted_changes
     ORIGINAL_BRANCH=$(git branch --show-current)
     if [ "$PARAM" = "homolog" ]; then
       echo "🚀 Enviando para homologação..."
@@ -70,6 +83,7 @@ case "$COMMAND" in
 
   "release")
     load_config
+    check_uncommitted_changes
     if [ "$PARAM" = "production" ]; then
       TARGET_BRANCH="$PROD_BRANCH"
       echo "🔖 Criando release para PRODUÇÃO..."
@@ -99,6 +113,7 @@ case "$COMMAND" in
 
   "finish")
     load_config
+    check_uncommitted_changes
     CURRENT_BRANCH=$(git branch --show-current)
     echo "✅ Finalizando a tarefa '$CURRENT_BRANCH'..."
     git checkout "$DEV_BRANCH" >/dev/null 2>&1
@@ -114,18 +129,18 @@ case "$COMMAND" in
         git branch -D "$CURRENT_BRANCH" >/dev/null 2>&1
         git push origin --delete "$CURRENT_BRANCH" >/dev/null 2>&1 || true
         echo "✅ Task forçada e excluída com sucesso!"
-      else
-        echo ""
-        echo "❌ A task '$CURRENT_BRANCH' ainda não foi integrada ao '$DEV_BRANCH'."
-        echo ""
-        echo "👉 Se quiser excluí-la mesmo assim, use:"
-        echo "   git task finish --force"
-        echo ""
-        echo "👉 Ou envie ao '$DEV_BRANCH' usando:"
-        echo "   git task deploy homolog"        
-        echo ""
-        git checkout "$CURRENT_BRANCH" >/dev/null 2>&1
-        exit 1
+    else
+      echo ""
+      echo "❌ A task '$CURRENT_BRANCH' ainda não foi integrada ao '$DEV_BRANCH'."
+      echo ""
+      echo "👉 Se quiser excluí-la mesmo assim, use:"
+      echo "   git task finish --force"
+      echo ""
+      echo "👉 Ou envie ao '$DEV_BRANCH' usando:"
+      echo "   git task deploy homolog"        
+      echo ""
+      git checkout "$CURRENT_BRANCH" >/dev/null 2>&1
+      exit 1
       fi
     fi
     ;;
