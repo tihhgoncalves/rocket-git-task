@@ -101,6 +101,33 @@ git task deploy homolog
 
 ---
 
+## 📌 **Sugestão de Scripts para Automatizar Comandos**
+
+Para facilitar o uso do **Rocket Git Task** no seu projeto, adicione os seguintes scripts ao seu **`package.json`**:
+
+```json
+"scripts": {
+  "gt:create": "git task create",
+  "gt:deploy:homolog": "git task deploy homolog",
+  "gt:deploy:production": "git task deploy production",
+  "gt:release:homolog": "git task release homolog",
+  "gt:release:production": "git task release production",
+  "gt:finish": "git task finish"
+}
+```
+
+Isso permite rodar os comandos diretamente com **`npm run`** ou **`yarn`**, por exemplo:
+
+```sh
+npm run gt:create minha-nova-task
+npm run gt:deploy:homolog
+npm run gt:release:production
+```
+
+Dessa forma, o fluxo de **criação, deploy e finalização** das tasks fica ainda mais prático! 🚀🔥
+
+---
+
 ## ⚙️ Configuração
 
 O `git-task` salva suas configurações diretamente no **`.git/config`**, evitando arquivos extras no repositório:
