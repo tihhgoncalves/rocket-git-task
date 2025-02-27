@@ -115,12 +115,12 @@ case "$COMMAND" in
     git pull >/dev/null 2>&1
 
     if [ "$TARGET_BRANCH" = "$PROD_BRANCH" ]; then
-      standard-version >/dev/null 2>&1 && git push >/dev/null 2>&1 && git push --tags >/dev/null 2>&1
+      npx standard-version >/dev/null 2>&1 && git push >/dev/null 2>&1 && git push --tags >/dev/null 2>&1
       git checkout "$DEV_BRANCH" >/dev/null 2>&1
       git merge --no-ff --no-edit "$PROD_BRANCH" >/dev/null 2>&1
       git push >/dev/null 2>&1
     else
-      standard-version --prerelease beta >/dev/null 2>&1 && git push >/dev/null 2>&1 && git push --tags >/dev/null 2>&1
+      npx standard-version --prerelease beta >/dev/null 2>&1 && git push >/dev/null 2>&1 && git push --tags >/dev/null 2>&1
     fi
     git checkout "$ORIGINAL_BRANCH" >/dev/null 2>&1
     echo "✅ Release concluída!"
