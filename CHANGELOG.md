@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.3.0-beta.0](https://github.com/tihhgoncalves/rocket-git-task/compare/v1.2.2...v1.3.0-beta.0) (2025-02-27)
+
+
+### Features
+
+* Adicionando comandos de Help e Versão ([3f3941b](https://github.com/tihhgoncalves/rocket-git-task/commit/3f3941ba08aef80c960f6065a76eb4795f37bac9))
+* standart-version executado pelo npx ([fda63dd](https://github.com/tihhgoncalves/rocket-git-task/commit/fda63dd974567d72dc68cb4922dccbf2c96170b6))
+
 ### [1.2.2](https://github.com/tihhgoncalves/rocket-git-task/compare/v1.2.1...v1.2.2) (2025-02-22)
 
 ### [1.2.1](https://github.com/tihhgoncalves/rocket-git-task/compare/v1.2.0...v1.2.1) (2025-02-22)
