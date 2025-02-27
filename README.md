@@ -99,6 +99,20 @@ Se a task ainda precisar ser enviada para homologação, o comando sugerirá:
 git task deploy homolog
 ```
 
+### **7️⃣  Versão**
+Para exibir a versão atual do script:
+```sh
+git task -v
+```
+
+
+
+### **8️⃣ Ajuda**
+Para exibir a mensagem de ajuda com todos os comandos disponíveis:
+```sh
+git task -h # ou git task --help
+```
+
 ---
 
 ## 📌 **Sugestão de Scripts para Automatizar Comandos**
