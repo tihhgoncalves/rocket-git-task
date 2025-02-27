@@ -1,6 +1,8 @@
 #!/bin/bash
 set -e
 
+VERSION=$(node -p "require('./package.json').version")
+
 check_uncommitted_changes() {
   if ! git diff --quiet || ! git diff --cached --quiet; then
     echo ""
@@ -20,6 +22,19 @@ load_config() {
     echo "❌ Configuração não encontrada! Execute 'git task init' primeiro."
     exit 1
   fi
+}
+
+show_help() {
+  echo "Uso: git task [comando] [parâmetro]"
+  echo ""
+  echo "Comandos disponíveis:"
+  echo "  init                Inicializa a configuração do Git Task"
+  echo "  create <nome>       Cria uma nova task com o nome especificado"
+  echo "  deploy <destino>    Envia a task para 'homolog' ou 'production'"
+  echo "  release <destino>   Cria uma release para 'homolog' ou 'production'"
+  echo "  finish [--force]    Finaliza a task atual, opcionalmente forçando a exclusão"
+  echo "  -v, --version       Exibe a versão do script"
+  echo "  -h, --help          Exibe esta mensagem de ajuda"
 }
 
 COMMAND=$1
@@ -145,8 +160,16 @@ case "$COMMAND" in
     fi
     ;;
 
+  "-v" | "--version")
+    echo "Rocket Git Task v$VERSION"
+    ;;
+
+  "-h" | "--help")
+    show_help
+    ;;
+
   *)
-    echo "❌ Comando desconhecido. Use: init, create, deploy, release ou finish."
+    echo "❌ Comando desconhecido. Use: init, create, deploy, release, finish, -v ou -h."
     exit 1
     ;;
 esac
