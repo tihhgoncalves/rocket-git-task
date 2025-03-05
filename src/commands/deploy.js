@@ -1,8 +1,12 @@
 const { getBranches } = require('../config');
 const git = require('../utils/git');
 const log = require('../utils/log');
+const { checkConfig } = require('../utils/git');
 
 module.exports = async ({ target }) => {
+
+    checkConfig();
+
     const { prodBranch, devBranch } = getBranches();
     const originalBranch = git.getCurrentBranch();
 

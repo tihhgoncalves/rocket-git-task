@@ -16,6 +16,25 @@ function getCurrentBranch() {
     return run('git rev-parse --abbrev-ref HEAD');
 }
 
+function getConfig(key) {
+    try {
+        return execSync(`git config --get task.${key}`, { encoding: 'utf-8' }).trim();
+    } catch (e) {
+        return null;
+    }
+}
+
+function checkConfig() {
+    const devBranch = getConfig('dev-branch');
+    const prodBranch = getConfig('prod-branch');
+
+    if (!devBranch || !prodBranch) {
+        console.log('\n⚠️  Configuração do Rocket Git Task não encontrada.');
+        console.log('Por favor, execute: git-task init\n');
+        process.exit(1);
+    }
+}
+
 function checkout(branch) {
     run(`git checkout ${branch}`);
 }
@@ -70,5 +89,7 @@ module.exports = {
     deleteBranch,
     isMerged,
     ensureBranchesExist,
-    run
+    run,
+    getConfig,
+    checkConfig,
 };
