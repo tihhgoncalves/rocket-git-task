@@ -1,19 +1,19 @@
 {
   "name": "rocket-git-task",
-  "version": "1.3.0",
+  "version": "1.4.0-beta.0",
   "description": "Automação de fluxo de trabalho no Git para tasks, deploy e releases.",
   "bin": {
-    "git-task": "./git-task.sh"
+    "git-task": "./src/index.js"
   },
   "scripts": {
-    "gt:init": "git task init",
-    "gt:create": "git task create",
-    "gt:deploy:homolog": "git task deploy homolog",
-    "gt:deploy:production": "git task deploy production",
-    "gt:release:homolog": "git task release homolog",
-    "gt:release:production": "git task release production",
-    "gt:finish": "git task finish",
-    "gt:finish:force": "git task finish --force",
+    "gt:init": "git-task init",
+    "gt:create": "git-task create",
+    "gt:deploy:homolog": "git-task deploy homolog",
+    "gt:deploy:production": "git-task deploy production",
+    "gt:release:homolog": "git-task release homolog",
+    "gt:release:production": "git-task release production",
+    "gt:finish": "git-task finish",
+    "gt:finish:force": "git-task finish --force",
     "gt:publish": "./.builds/publish.sh"
   },
   "repository": {
@@ -31,5 +31,10 @@
   "license": "MIT",
   "devDependencies": {
     "standard-version": "^9.5.0"
+  },
+  "dependencies": {
+    "chalk": "^4.1.2",
+    "inquirer": "^12.4.2",
+    "yargs": "^17.7.2"
   }
 }
