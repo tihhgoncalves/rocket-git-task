@@ -2,6 +2,7 @@
 
 const yargs = require('yargs');
 const { hideBin } = require('yargs/helpers');
+const { version } = require('../package.json');
 
 const init = require('./commands/init');
 const create = require('./commands/create');
@@ -39,6 +40,8 @@ yargs(hideBin(process.argv))
         });
     }, finish)
     .help()
+    .version(`Rocket Git-Task v${version}`)
+    .help()
     .alias('h', 'help')
-    .version('1.0.0')
+    .alias('v', 'version')
     .argv;
