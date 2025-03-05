@@ -11,6 +11,15 @@ const release = require('./commands/release');
 const finish = require('./commands/finish');
 
 yargs(hideBin(process.argv))
+    .usage(`[Rocket Git-Task]
+
+    O Rocket Git Task é uma ferramenta de automação para gerenciar tarefas no Git de forma simplificada.
+    
+    Autor: @tihhgonalves
+    
+    Uso: git-task <comando> [opções]
+    
+    `)
     .command('init', 'Inicializa a configuração do Git Task', () => {}, init)
     .command('create <name>', 'Cria uma nova task', (yargs) => {
         yargs.positional('name', {
