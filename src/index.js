@@ -15,7 +15,7 @@ yargs(hideBin(process.argv))
 
     O Rocket Git Task é uma ferramenta de automação para gerenciar tarefas no Git de forma simplificada.
     
-    Autor: @tihhgonalves
+    Autor: @tihhgoncalves
     
     Uso: git-task <comando> [opções]
 
