@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.5.0](https://github.com/tihhgoncalves/rocket-git-task/compare/v1.4.0...v1.5.0) (2025-03-05)
+
+
+### Features
+
+* Adiciona verificação de configuração no comando de criação e implantação ([3126fa0](https://github.com/tihhgoncalves/rocket-git-task/commit/3126fa05dc40dec42d708b5dee3977a58ff6a9d9))
+
 ## [1.4.0](https://github.com/tihhgoncalves/rocket-git-task/compare/v1.4.0-beta.0...v1.4.0) (2025-03-05)
 
 ## [1.4.0-beta.0](https://github.com/tihhgoncalves/rocket-git-task/compare/v1.3.0...v1.4.0-beta.0) (2025-03-05)
