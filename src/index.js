@@ -18,7 +18,10 @@ yargs(hideBin(process.argv))
     Autor: @tihhgonalves
     
     Uso: git-task <comando> [opções]
-    
+
+    Targets disponíveis:
+    - homolog
+    - production
     `)
     .command('init', 'Inicializa a configuração do Git Task', () => {}, init)
     .command('create <name>', 'Cria uma nova task', (yargs) => {
@@ -53,4 +56,11 @@ yargs(hideBin(process.argv))
     .help()
     .alias('h', 'help')
     .alias('v', 'version')
+    .fail((msg, err, yargs) => {
+        if (err) throw err; // erros internos (ex: require errado) ainda devem quebrar
+
+        console.log('\n❌ ERRO DE COMANDO!\n\n', msg, '\n');
+        console.log(yargs.help());
+        process.exit(1);
+    })
     .argv;
