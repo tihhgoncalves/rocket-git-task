@@ -164,7 +164,3 @@ Confira todas as mudanças e novidades no [CHANGELOG.md](https://github.com/tihh
 ## 🚀 Rocket Produtora Digital
 
 Criado com ♥ pela [Rocket Produtora Digital](https://www.produtorarocket.com)
-
----
-
-Quer que eu já te mande o arquivo pronto pra substituir no seu projeto?
