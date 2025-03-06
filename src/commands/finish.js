@@ -6,7 +6,8 @@ module.exports = async ({ force }) => {
     const currentBranch = git.getCurrentBranch();
     const { devBranch } = getBranches();
 
-    git.ensureCleanWorkingDirectory();
+    // verifica se tem commits pendentes
+    //git.ensureCleanWorkingDirectory();
 
     log.info(`Verificando se já foi feito deploy da task "${currentBranch}" para "${devBranch}"...`);
 
