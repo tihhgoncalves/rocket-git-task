@@ -8,6 +8,8 @@ module.exports = async ({ force }) => {
 
     git.ensureCleanWorkingDirectory();
 
+    log.info(`Verificando se a task "${currentBranch}" já foi mergeada em "${devBranch}"...`);
+
     if (git.isMerged(currentBranch, devBranch) || force) {
         git.checkout(devBranch);
         git.pull();
