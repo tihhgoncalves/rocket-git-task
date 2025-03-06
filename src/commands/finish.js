@@ -16,7 +16,7 @@ module.exports = async ({ force }) => {
         git.deleteBranch(currentBranch, force);
         log.success(`Task "${currentBranch}" finalizada e removida.`);
     } else {
-        log.warn(`Ainda não foi feito deploy da task "${currentBranch}" para homologação.`);
+        log.error(`Ainda não foi feito deploy da task "${currentBranch}" para homologação.`);
         log.warn('Use "git-task deploy homolog" para enviar a tarefa para o ambiente de homologação.');
         log.warn('Use "git-task finish --force" para forçar a exclusão.');
     }
