@@ -9,6 +9,7 @@ const create = require('./commands/create');
 const deploy = require('./commands/deploy');
 const release = require('./commands/release');
 const finish = require('./commands/finish');
+const update = require('./commands/update');
 
 yargs(hideBin(process.argv))
     .usage(`
@@ -53,6 +54,7 @@ yargs(hideBin(process.argv))
             description: 'Força a finalização mesmo sem merge'
         });
     }, finish)
+    .command('update', 'Atualiza a task atual com as mudanças do develop', () => {}, update)
     .help()
     .version(`Rocket Git-Task v${version}`)
     .help()
