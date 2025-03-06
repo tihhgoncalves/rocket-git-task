@@ -1,8 +1,8 @@
 <img src="https://raw.githubusercontent.com/filipedeschamps/rss-feed-emitter/master/content/logo.gif">
 
-# 🚀 Rocket git-task
+# 🚀 Rocket Git Task
 
-O **Rocket git-task** é uma ferramenta de automação para gerenciar **tasks**, **deploys** e **releases** no Git de forma simplificada. Ele permite criar, enviar e finalizar tasks com comandos curtos e eficientes.
+O **Rocket Git Task** organiza e agiliza o fluxo de tarefas no Git, conectando desenvolvimento, homologação e produção de forma simples e eficiente.
 
 [![Versão Mais Recente](https://img.shields.io/github/release/tihhgoncalves/rocket-git-task.svg?style=flat)]()
 [![Último Commit](https://img.shields.io/github/last-commit/tihhgoncalves/rocket-git-task.svg?style=flat)]()
@@ -12,142 +12,119 @@ O **Rocket git-task** é uma ferramenta de automação para gerenciar **tasks**,
 
 ---
 
-## 🎯 Como Instalar
+## 📥 Instalação
 
-Instale o **Rocket git-task** globalmente via **NPM**:
+Instale globalmente via NPM:
 
 ```sh
 npm install -g rocket-git-task
 ```
 
-Após a instalação, os comandos estarão disponíveis globalmente no terminal.
+Após a instalação, o comando `git-task` estará disponível no terminal.
 
 ---
 
-## 🚀 Como Usar
+## 📚 Comandos Disponíveis
 
-### 1️⃣ Inicializar o `git-task` no repositório
+### 1️⃣ Inicializar o Rocket Git Task
 
-Antes de usar, é necessário configurar o fluxo do Git no seu projeto:
+Configura o repositório informando as branches de **produção** e **homologação**:
 
 ```sh
 git-task init
 ```
 
-Ele perguntará quais branches você deseja usar para produção (`main` ou `master`) e homologação (`develop`, `dev`, etc.), e salvará essas configurações automaticamente.
-
 ---
 
 ### 2️⃣ Criar uma nova task
 
-Cria um novo branch de **task** a partir do branch de homologação.
+Cria um novo branch de task a partir da branch de homologação e já muda para ele:
 
 ```sh
 git-task create nome-da-tarefa
 ```
 
-Isso cria e muda para um branch chamado `task/nome-da-tarefa`.
+Exemplo: Cria a branch `task/nome-da-tarefa`.
 
 ---
 
-### 3️⃣ Enviar uma task para homologação
+### 3️⃣ Atualizar uma task com o último develop
 
-Faz merge da task para o branch de homologação e faz o push automaticamente.
+Se sua task está em andamento e você quer trazer as últimas atualizações do `develop` para ela:
+
+```sh
+git-task update
+```
+
+---
+
+### 4️⃣ Fazer deploy de uma task para homologação
 
 ```sh
 git-task deploy homolog
 ```
 
+Faz merge da task no branch de homologação e faz o push automaticamente.
+
 ---
 
-### 4️⃣ Enviar uma task para produção
-
-Faz merge do branch de homologação no branch de produção.
+### 5️⃣ Fazer deploy de homologação para produção
 
 ```sh
 git-task deploy production
 ```
 
+Faz merge da homologação para produção e realiza o push.
+
 ---
 
-### 5️⃣ Criar uma release
+### 6️⃣ Criar uma release
 
-Cria uma nova versão no Git usando **`standard-version`**, gerando um **changelog** automaticamente.
+Gera uma nova release automaticamente usando **`standard-version`**, incluindo changelog:
 
 ```sh
-git-task release production  # Para produção
-git-task release homolog     # Para homologação
+git-task release production   # Para produção
+git-task release homolog      # Para homologação
 ```
 
 ---
 
-### **6️⃣ Finalizar uma task**
+### 7️⃣ Finalizar uma task
 
 ```sh
 git-task finish
 ```
 
-Caso a task **ainda não tenha sido mergeada**, o comando avisará. Se quiser **forçar a exclusão**, use:
+Se a task não tiver sido mergeada, ele avisa. Para forçar a finalização (apagando mesmo sem merge), use:
 
 ```sh
 git-task finish --force
 ```
 
-Se a task ainda precisar ser enviada para homologação, o comando sugerirá:
+---
 
-```sh
-git-task deploy homolog
-```
+### 8️⃣ Versão e Ajuda
 
-### **7️⃣  Versão**
-Para exibir a versão atual do script:
+Para exibir a versão atual:
+
 ```sh
 git-task -v
 ```
 
-
-
-### **8️⃣ Ajuda**
-Para exibir a mensagem de ajuda com todos os comandos disponíveis:
-```sh
-git-task -h # ou git-task --help
-```
-
----
-
-## 📌 **Sugestão de Scripts para Automatizar Comandos**
-
-Para facilitar o uso do **Rocket git-task** no seu projeto, adicione os seguintes scripts ao seu **`package.json`**:
-
-```json
-"scripts": {
-  "gt:create": "git-task create",
-  "gt:deploy:homolog": "git-task deploy homolog",
-  "gt:deploy:production": "git-task deploy production",
-  "gt:release:homolog": "git-task release homolog",
-  "gt:release:production": "git-task release production",
-  "gt:finish": "git-task finish"
-}
-```
-
-Isso permite rodar os comandos diretamente com **`npm run`** ou **`yarn`**, por exemplo:
+Para exibir todos os comandos:
 
 ```sh
-npm run gt:create minha-nova-task
-npm run gt:deploy:homolog
-npm run gt:release:production
+git-task -h
 ```
-
-Dessa forma, o fluxo de **criação, deploy e finalização** das tasks fica ainda mais prático! 🚀🔥
 
 ---
 
 ## ⚙️ Configuração
 
-O `git-task` salva suas configurações diretamente no **`.git/config`**, evitando arquivos extras no repositório:
+O Rocket Git Task salva suas configurações diretamente no seu **`.git/config`**, sem arquivos extras no repositório:
 
-- **task.prod-branch**: Branch usado para produção (`main`, `master`, etc.).
-- **task.dev-branch**: Branch usado para homologação (`develop`, `dev`, etc.).
+- `task.prod-branch`: Branch de produção (ex: `main` ou `master`).
+- `task.dev-branch`: Branch de homologação (ex: `develop`).
 
 Para redefinir a configuração, basta rodar:
 
@@ -157,35 +134,37 @@ git-task init
 
 ---
 
+## 🙌 Contribuições
+
+Contribuições são sempre bem-vindas! Se quiser sugerir melhorias ou reportar problemas, basta abrir uma [issue](https://github.com/tihhgoncalves/rocket-git-task/issues).
+
+---
+
 ## 👨‍💻 Mantenedor
 
-Este projeto é orgulhosamente mantido pela **[Rocket Produtora Digital](https://www.produtorarocket.com)**.
+O Rocket Git Task é mantido com carinho por:
 
-## 📌 Contribuições
-
-Nossa liga de super coders está sempre pronta para ação! 💥
-
-- @tihhgoncalves 🚀 (O Mestre Jedi dos Códigos)
-
-> Contribuições são sempre bem-vindas! Sinta-se à vontade para melhorar o código, documentação ou funcionalidades.
-
----
-
-## 🔗 Autor
-
-Criado por **[Tihh Gonçalves](https://github.com/tihhgoncalves)**.
-
-[![Github](https://img.shields.io/badge/GitHub-181717.svg?style=for-the-badge&logo=GitHub&logoColor=white)](https://github.com/tihhgoncalves)
-[![Telegram](https://img.shields.io/badge/Telegram-26A5E4.svg?style=for-the-badge&logo=Telegram&logoColor=white)](https://t.me/tihhgoncalves)
-
----
-
-## 🛠 Suporte
-
-Para relatar **bugs** ou solicitar novas funcionalidades, abra uma **[issue](https://github.com/tihhgoncalves/rocket-git-task/issues)** no GitHub.
+- [@tihhgoncalves](https://github.com/tihhgoncalves)
 
 ---
 
 ## 📜 Histórico de Versões
 
-Para ver todas as mudanças e melhorias, consulte o **[CHANGELOG.md](https://github.com/tihhgoncalves/rocket-git-task/blob/main/CHANGELOG.md)**.
+Confira todas as mudanças e novidades no [CHANGELOG.md](https://github.com/tihhgoncalves/rocket-git-task/blob/main/CHANGELOG.md).
+
+---
+
+## 🔗 Redes e Contato
+
+[![GitHub](https://img.shields.io/badge/GitHub-181717.svg?style=for-the-badge&logo=GitHub&logoColor=white)](https://github.com/tihhgoncalves)
+[![Telegram](https://img.shields.io/badge/Telegram-26A5E4.svg?style=for-the-badge&logo=Telegram&logoColor=white)](https://t.me/tihhgoncalves)
+
+---
+
+## 🚀 Rocket Produtora Digital
+
+Criado com ♥ pela [Rocket Produtora Digital](https://www.produtorarocket.com)
+
+---
+
+Quer que eu já te mande o arquivo pronto pra substituir no seu projeto?
