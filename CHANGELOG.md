@@ -2,6 +2,23 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.6.0](https://github.com/tihhgoncalves/rocket-git-task/compare/v1.5.0...v1.6.0) (2025-03-06)
+
+
+### Features
+
+* Adiciona comando de atualização para branches de task e verifica commits pendentes ([00d7127](https://github.com/tihhgoncalves/rocket-git-task/commit/00d7127fde31c3e1200aa1a6047839a60c9bcdaa))
+* Adiciona log de verificação de merge no comando finish ([0fbe134](https://github.com/tihhgoncalves/rocket-git-task/commit/0fbe13462db0b5e34eb7ec1daba13013a0db6239))
+
+
+### Bug Fixes
+
+* Altera log de aviso para erro quando o deploy da task não foi realizado ([f9a6a96](https://github.com/tihhgoncalves/rocket-git-task/commit/f9a6a965169a0508a391cced02d66ad337083a52))
+* Atualiza mensagens de log para refletir o status de deploy das tasks ([37c13d3](https://github.com/tihhgoncalves/rocket-git-task/commit/37c13d3d718227f6fe114715fcbf0df5b19be963))
+* Corrige a nomenclatura do comando para 'git-task' em mensagens e documentação ([5278a93](https://github.com/tihhgoncalves/rocket-git-task/commit/5278a935a44366c5c1d2b210810270f838c60749))
+* Corrige a nomenclatura do comando para 'git-task' no README.md ([19b1b20](https://github.com/tihhgoncalves/rocket-git-task/commit/19b1b200c44dca01de60d8f6ee8399c2bf81e872))
+* Move mensagem de erro para o local correto no comando finish ([9f82be6](https://github.com/tihhgoncalves/rocket-git-task/commit/9f82be62cd259b46c5903ccd3504a84d6f2fc1fd))
+
 ## [1.5.0](https://github.com/tihhgoncalves/rocket-git-task/compare/v1.4.0...v1.5.0) (2025-03-05)
 
 
