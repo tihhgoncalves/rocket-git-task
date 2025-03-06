@@ -69,9 +69,7 @@ function deleteBranch(name, force = false) {
 }
 
 function isMerged(branch, target) {
-    console.log(`🔎 Verificando se "${branch}" foi mergeada em "${target}"...`);
     const mergedBranches = run(`git branch --merged ${target}`);
-    console.log(`🔎 Branches mergeadas em ${target}:`, mergedBranches);
     return mergedBranches.includes(branch);
 }
 
