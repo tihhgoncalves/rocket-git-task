@@ -6,6 +6,5 @@ module.exports = {
     warn: (msg) => console.log(chalk.yellow('⚠️  ' + msg)),
     error: (msg) => {
         console.log(chalk.red('❌ ' + msg));
-        process.exit(1);
     }
 };
