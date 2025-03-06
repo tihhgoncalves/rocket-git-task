@@ -5,6 +5,10 @@ const { getBranches } = require('../config');
 module.exports = async ({ force }) => {
     const currentBranch = git.getCurrentBranch();
 
+    // verifica se existem commits pendentes
+     git.ensureCleanWorkingDirectory();
+
+    // Verifica se está em uma task
     if (!currentBranch.startsWith('task/')) {
         log.error(`O comando "finish" só pode ser executado em uma branch de task.`);
         log.error(`Você está na branch "${currentBranch}".`);
