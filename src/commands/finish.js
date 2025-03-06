@@ -6,7 +6,8 @@ module.exports = async ({ force }) => {
     const currentBranch = git.getCurrentBranch();
     const { devBranch } = getBranches();
 
-    git.ensureCleanWorkingDirectory();
+    // verifica se tem commits pendentes
+    //git.ensureCleanWorkingDirectory();
 
     log.info(`Verificando se já foi feito deploy da task "${currentBranch}" para "${devBranch}"...`);
 
@@ -16,8 +17,8 @@ module.exports = async ({ force }) => {
         git.deleteBranch(currentBranch, force);
         log.success(`Task "${currentBranch}" finalizada e removida.`);
     } else {
-        log.warn(`Ainda não foi feito deploy da task "${currentBranch}" para homologação.`);
         log.warn('Use "git-task deploy homolog" para enviar a tarefa para o ambiente de homologação.');
         log.warn('Use "git-task finish --force" para forçar a exclusão.');
+        log.error(`Ainda não foi feito deploy da task "${currentBranch}" para homologação.`);
     }
 };
