@@ -4,10 +4,14 @@ const { getBranches } = require('../config');
 
 module.exports = async ({ force }) => {
     const currentBranch = git.getCurrentBranch();
-    const { devBranch } = getBranches();
 
-    // verifica se tem commits pendentes
-    //git.ensureCleanWorkingDirectory();
+    if (!currentBranch.startsWith('task/')) {
+        log.error(`O comando "finish" só pode ser executado em uma branch de task.`);
+        log.error(`Você está na branch "${currentBranch}".`);
+        process.exit(1);
+    }
+
+    const { devBranch } = getBranches();
 
     log.info(`Verificando se já foi feito deploy da task "${currentBranch}" para "${devBranch}"...`);
 
