@@ -1,8 +1,8 @@
 <img src="https://raw.githubusercontent.com/filipedeschamps/rss-feed-emitter/master/content/logo.gif">
 
-# 🚀 Rocket Git Task
+# 🚀 Rocket git-task
 
-O **Rocket Git Task** é uma ferramenta de automação para gerenciar **tasks**, **deploys** e **releases** no Git de forma simplificada. Ele permite criar, enviar e finalizar tasks com comandos curtos e eficientes.
+O **Rocket git-task** é uma ferramenta de automação para gerenciar **tasks**, **deploys** e **releases** no Git de forma simplificada. Ele permite criar, enviar e finalizar tasks com comandos curtos e eficientes.
 
 [![Versão Mais Recente](https://img.shields.io/github/release/tihhgoncalves/rocket-git-task.svg?style=flat)]()
 [![Último Commit](https://img.shields.io/github/last-commit/tihhgoncalves/rocket-git-task.svg?style=flat)]()
@@ -14,7 +14,7 @@ O **Rocket Git Task** é uma ferramenta de automação para gerenciar **tasks**,
 
 ## 🎯 Como Instalar
 
-Instale o **Rocket Git Task** globalmente via **NPM**:
+Instale o **Rocket git-task** globalmente via **NPM**:
 
 ```sh
 npm install -g rocket-git-task
@@ -31,7 +31,7 @@ Após a instalação, os comandos estarão disponíveis globalmente no terminal.
 Antes de usar, é necessário configurar o fluxo do Git no seu projeto:
 
 ```sh
-git task init
+git-task init
 ```
 
 Ele perguntará quais branches você deseja usar para produção (`main` ou `master`) e homologação (`develop`, `dev`, etc.), e salvará essas configurações automaticamente.
@@ -43,7 +43,7 @@ Ele perguntará quais branches você deseja usar para produção (`main` ou `mas
 Cria um novo branch de **task** a partir do branch de homologação.
 
 ```sh
-git task create nome-da-tarefa
+git-task create nome-da-tarefa
 ```
 
 Isso cria e muda para um branch chamado `task/nome-da-tarefa`.
@@ -55,7 +55,7 @@ Isso cria e muda para um branch chamado `task/nome-da-tarefa`.
 Faz merge da task para o branch de homologação e faz o push automaticamente.
 
 ```sh
-git task deploy homolog
+git-task deploy homolog
 ```
 
 ---
@@ -65,7 +65,7 @@ git task deploy homolog
 Faz merge do branch de homologação no branch de produção.
 
 ```sh
-git task deploy production
+git-task deploy production
 ```
 
 ---
@@ -75,8 +75,8 @@ git task deploy production
 Cria uma nova versão no Git usando **`standard-version`**, gerando um **changelog** automaticamente.
 
 ```sh
-git task release production  # Para produção
-git task release homolog     # Para homologação
+git-task release production  # Para produção
+git-task release homolog     # Para homologação
 ```
 
 ---
@@ -84,25 +84,25 @@ git task release homolog     # Para homologação
 ### **6️⃣ Finalizar uma task**
 
 ```sh
-git task finish
+git-task finish
 ```
 
 Caso a task **ainda não tenha sido mergeada**, o comando avisará. Se quiser **forçar a exclusão**, use:
 
 ```sh
-git task finish --force
+git-task finish --force
 ```
 
 Se a task ainda precisar ser enviada para homologação, o comando sugerirá:
 
 ```sh
-git task deploy homolog
+git-task deploy homolog
 ```
 
 ### **7️⃣  Versão**
 Para exibir a versão atual do script:
 ```sh
-git task -v
+git-task -v
 ```
 
 
@@ -110,23 +110,23 @@ git task -v
 ### **8️⃣ Ajuda**
 Para exibir a mensagem de ajuda com todos os comandos disponíveis:
 ```sh
-git task -h # ou git task --help
+git-task -h # ou git-task --help
 ```
 
 ---
 
 ## 📌 **Sugestão de Scripts para Automatizar Comandos**
 
-Para facilitar o uso do **Rocket Git Task** no seu projeto, adicione os seguintes scripts ao seu **`package.json`**:
+Para facilitar o uso do **Rocket git-task** no seu projeto, adicione os seguintes scripts ao seu **`package.json`**:
 
 ```json
 "scripts": {
-  "gt:create": "git task create",
-  "gt:deploy:homolog": "git task deploy homolog",
-  "gt:deploy:production": "git task deploy production",
-  "gt:release:homolog": "git task release homolog",
-  "gt:release:production": "git task release production",
-  "gt:finish": "git task finish"
+  "gt:create": "git-task create",
+  "gt:deploy:homolog": "git-task deploy homolog",
+  "gt:deploy:production": "git-task deploy production",
+  "gt:release:homolog": "git-task release homolog",
+  "gt:release:production": "git-task release production",
+  "gt:finish": "git-task finish"
 }
 ```
 
@@ -152,7 +152,7 @@ O `git-task` salva suas configurações diretamente no **`.git/config`**, evitan
 Para redefinir a configuração, basta rodar:
 
 ```sh
-git task init
+git-task init
 ```
 
 ---
