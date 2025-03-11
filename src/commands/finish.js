@@ -20,7 +20,7 @@ module.exports = async ({ force }) => {
     log.info(`Verificando se a task "${currentBranch}" já foi enviada para produção...`);
 
     if (!git.isMerged(currentBranch, prodBranch) && !force) {
-        log.warn(`A task "${currentBranch}" ainda não foi enviada para produção.`);
+        log.error(`A task "${currentBranch}" ainda não foi enviada para produção.`);
         log.warn(`Use "git-task deploy production" para enviá-la.`);
         log.warn(`Ou use "git-task finish --force" para forçar a exclusão.`);
         process.exit(1);
