@@ -30,13 +30,6 @@ module.exports = async ({ force }) => {
             throw new Error(`A task "${currentBranch}" ainda não foi enviada para produção.`);
         }
 
-        // Verifica se há commits na task que não estão na produção
-        const commitsNaoEnviados = git.run(`git log ${prodBranch}..${currentBranch} --oneline`);
-
-        if (commitsNaoEnviados && !force) {
-            throw new Error(`A task "${currentBranch}" tem commits que ainda não foram enviados para produção.`);
-        }
-
         // Se chegou aqui, pode finalizar a task
         git.deleteBranch(currentBranch, force);
         log.success(`Task "${currentBranch}" finalizada e removida.`);
@@ -45,13 +38,12 @@ module.exports = async ({ force }) => {
         log.warn(`Use "git-task deploy production" para enviá-la.`);
         log.warn(`Ou use "git-task finish --force" para forçar a exclusão.`);
     } finally {
-        // Sempre volta para a branch original se houver erro
-        git.checkout(currentBranch);
+        // 🔍 Só tenta voltar para a branch original se ela ainda existir
+        const existingBranches = git.run(`git branch`);
+        if (existingBranches.includes(currentBranch)) {
+            git.checkout(currentBranch);
+        } else {
+            git.checkout(prodBranch); // Se a task foi deletada, fica na produção
+        }
     }
-
-    // Se chegou aqui, pode finalizar a task
-    git.checkout(prodBranch);
-    git.pull();
-    git.deleteBranch(currentBranch, force);
-    log.success(`Task "${currentBranch}" finalizada e removida.`);
 };
