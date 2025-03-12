@@ -32,5 +32,8 @@ module.exports = async () => {
         log.error(`Falha ao atualizar a task "${currentBranch}".`);
         log.error(`Erro: ${error.message}`);
         process.exit(1);
+    } finally {
+        // garante que no final sempre volta pra branch original
+        git.checkout(currentBranch);   
     }
 };
