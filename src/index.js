@@ -14,49 +14,57 @@ const update = require('./commands/update');
 yargs(hideBin(process.argv))
     .usage(`
         
-    ROCKET GIT-TASK
+    🚀 ROCKET GIT-TASK - Automação de Fluxo de Trabalho no Git
 
-    O Rocket Git-Task é uma ferramenta de automação para gerenciar tarefas no Git de forma simplificada.
+    O Rocket Git-Task é uma ferramenta de automação para gerenciar tasks, deploys e releases no Git de forma simplificada.
     
-    Autor: @tihhgoncalves
-    
-    Uso: git-task <comando> [opções]
+    📌 Autor: @tihhgoncalves
 
-    Targets disponíveis:
-    - homolog
-    - production
+    🔹 Uso: git-task <comando> [opções]
+
+    📌 Targets disponíveis:
+    - homolog      (Homologação)
+    - production   (Produção)
+
+    📌 Comandos disponíveis:
+    - init         Inicializa o Rocket Git-Task no repositório
+    - create       Cria uma nova task no fluxo de desenvolvimento
+    - deploy       Faz deploy da task para homologação ou produção
+    - release      Gera um release oficial do projeto
+    - finish       Finaliza uma task após o merge para produção
+    - update       Atualiza a task com mudanças do develop
     `)
-    .command('init', 'Inicializa a configuração do Git-Task', () => {}, init)
-    .command('create <name>', 'Cria uma nova task', (yargs) => {
+    .command('init', '📌 Inicializa o Rocket Git-Task no repositório', () => {}, init)
+    .command('create <name>', '📌 Cria uma nova task no fluxo de desenvolvimento', (yargs) => {
         yargs.positional('name', {
             describe: 'Nome da task',
             type: 'string'
         });
     }, create)
-    .command('deploy <target>', 'Faz deploy para homolog ou produção', (yargs) => {
+    .command('deploy <target>', '📌 Faz deploy da task para homologação ou produção', (yargs) => {
         yargs.positional('target', {
-            describe: 'Destino: homolog ou production',
+            describe: 'Destino do deploy',
             type: 'string',
             choices: ['homolog', 'production']
         });
     }, deploy)
-    .command('release <target>', 'Cria uma release para homolog ou produção', (yargs) => {
+    .command('release <target>', '📌 Gera um release oficial do projeto', (yargs) => {
         yargs.positional('target', {
-            describe: 'Destino: homolog ou production',
+            describe: 'Destino do release',
             type: 'string',
             choices: ['homolog', 'production']
         });
     }, release)
-    .command('finish', 'Finaliza a task atual', (yargs) => {
+    .command('finish', '📌 Finaliza a task atual após o deploy', (yargs) => {
         yargs.option('force', {
             alias: 'f',
             type: 'boolean',
-            description: 'Força a finalização mesmo sem merge'
+            description: 'Força a finalização da task sem verificar o merge'
         });
     }, finish)
-    .command('update', 'Atualiza a task atual com as mudanças do develop', () => {}, update)
+    .command('update', '📌 Atualiza a task atual com as mudanças do develop', () => {}, update)
     .help()
-    .version(`Rocket Git-Task v${version}`)
+    .version(`🚀 Rocket Git-Task v${version}`)
     .help()
     .alias('h', 'help')
     .alias('v', 'version')
