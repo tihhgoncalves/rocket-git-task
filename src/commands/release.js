@@ -54,6 +54,7 @@ module.exports = async ({ target, type = 'patch' }) => {
 
     // Obtém a versão atual e gera a nova versão automaticamente
     const currentVersion = getPackageVersion();
+    log.info(`📦 Versão atual: ${currentVersion}`);
     const newVersion = incrementVersion(currentVersion, type, target !== 'production');
 
     // ✅ Atualiza o package.json na branch de destino
