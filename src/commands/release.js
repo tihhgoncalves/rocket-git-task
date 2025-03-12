@@ -4,15 +4,9 @@ const log = require('../utils/log');
 const { execSync } = require('child_process');
 const fs = require('fs');
 
+// Função para incrementar a versão
 function incrementVersion(version, type, isBeta = false) {
-    let [major, minor, patch] = version.split('.').map(Number);
-    let betaNumber = null;
-
-    if (version.includes('-beta.')) {
-        const betaParts = version.split('-beta.');
-        version = betaParts[0];
-        betaNumber = parseInt(betaParts[1]) || 1;
-    }
+    const [major, minor, patch] = version.split('.').map(Number);
 
     let newVersion;
     if (type === 'major') {
@@ -23,17 +17,21 @@ function incrementVersion(version, type, isBeta = false) {
         newVersion = `${major}.${minor}.${patch + 1}`;
     }
 
-    log.info(`📦 Versão atual: ${version}`);
-
+    // Se for beta (homologação), adiciona o número incremental
     if (isBeta) {
-        const nextBetaNumber = betaNumber !== null ? betaNumber + 1 : 1;
-        newVersion = `${newVersion}-beta.${nextBetaNumber}`;
+        // Conta quantas versões beta já existem
+        const betaCount = execSync(`git tag -l "v${newVersion}-beta.*"`)
+            .toString()
+            .trim()
+            .split('\n').length;
+
+        newVersion = `${newVersion}-beta.${betaCount + 1}`;
     }
 
-    log.info(`📌 Nova versão gerada: ${newVersion}`);
     return newVersion;
 }
 
+// Obtém a versão atual do package.json
 function getPackageVersion() {
     const packageJson = JSON.parse(fs.readFileSync('package.json', 'utf8'));
     return packageJson.version;
@@ -52,24 +50,30 @@ module.exports = async ({ target, type = 'patch' }) => {
 
     log.info(`🚀 Criando release para ${target}...`);
 
+    // Obtém a versão atual e gera a nova versão automaticamente
     const currentVersion = getPackageVersion();
     const newVersion = incrementVersion(currentVersion, type, target !== 'production');
 
+    // Atualiza o package.json com a nova versão
     const packageJsonPath = 'package.json';
     const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
     packageJson.version = newVersion;
     fs.writeFileSync(packageJsonPath, JSON.stringify(packageJson, null, 2));
 
-    git.run(`git add package.json`);
-    git.run(`git commit -m "🔖 Bump versão para ${newVersion}"`);
+    log.info(`📌 Nova versão gerada: ${newVersion}`);
+
+    // Cria uma nova tag e envia para o repositório
+    const tagName = `v${newVersion}`;
+    git.run(`git tag -a ${tagName} -m "🚀 Release ${tagName}"`);
     git.push();
 
     const tagName = `v${newVersion}`;
     git.run(`git tag -a ${tagName} -m "🚀 Release ${tagName}"`);
     git.pushTags();
 
-    log.success(`✅ Release ${tagName} criada e enviada para o repositório!`);
+    log.success(`Release ${tagName} criada e enviada para o repositório!`);
 
+    // Se for produção, mergeia na develop também
     if (target === 'production') {
         git.checkout(devBranch);
         git.merge(prodBranch);
