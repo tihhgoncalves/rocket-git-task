@@ -17,11 +17,15 @@ module.exports = async ({ target, type = 'patch' }) => {
     git.checkout(targetBranch);
     git.pull();
 
+    // Obtém a versão atual antes do release
+    const packageJson = JSON.parse(fs.readFileSync('package.json', 'utf8'));
+    const currentVersion = packageJson.version;
+
+    log.info(`📦 Versão atual: ${currentVersion}`);
     log.info(`🚀 Criando release para ${target}...`);
 
     // Define o comando correto para incrementar a versão
     let versionCommand = `npm version ${type}`;
-    
     if (isBeta) {
         versionCommand = `npm version ${type} --preid=beta`;
     }
@@ -30,8 +34,9 @@ module.exports = async ({ target, type = 'patch' }) => {
         // Executa o comando para incrementar a versão automaticamente
         execSync(versionCommand, { stdio: 'inherit' });
 
-        // Obtém a nova versão do package.json após a atualização
-        const newVersion = require('../../package.json').version;
+        // Obtém a nova versão gerada após a atualização do package.json
+        const updatedPackageJson = JSON.parse(fs.readFileSync('package.json', 'utf8'));
+        const newVersion = updatedPackageJson.version;
 
         log.info(`📌 Nova versão gerada: ${newVersion}`);
 
