@@ -27,10 +27,12 @@ module.exports = async ({ target, type = 'patch' }) => {
 
         if (isBeta) {
             // Se for beta, garantimos que ele incremente corretamente
+            log.info('🔥 Gerando versão beta...');
             newVersion = execSync(`npm version ${type} --preid=beta --no-git-tag-version`, { encoding: 'utf-8' }).trim();
             newVersion = JSON.parse(fs.readFileSync('package.json', 'utf8')).version; // Atualiza com o novo valor gerado
         } else {
             // Para produção, seguimos o fluxo normal do npm version
+            log.info('🔥 Gerando versão de produção...');
             newVersion = execSync(`npm version ${type} --no-git-tag-version`, { encoding: 'utf-8' }).trim();
         }
 
