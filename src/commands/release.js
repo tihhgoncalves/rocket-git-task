@@ -46,17 +46,17 @@ module.exports = async ({ target, type = 'patch' }) => {
     const targetBranch = target === 'production' ? prodBranch : devBranch;
     const originalBranch = git.getCurrentBranch();
 
+    // verifica se existem commits não enviados
     git.ensureCleanWorkingDirectory();
 
     // ✅ Troca para a branch de destino antes de atualizar o package.json
     git.checkout(targetBranch);
     git.pull();
 
-    log.info(`Criando release para ${target}...`);
+    log.info(`🚀 Criando release para ${target}...`);
 
     // Obtém a versão atual e gera a nova versão automaticamente
     const currentVersion = getPackageVersion();
-    log.info(`📦 Versão atual: ${currentVersion}`);
     const newVersion = incrementVersion(currentVersion, type, target !== 'production');
 
     // ✅ Atualiza o package.json na branch de destino
@@ -64,8 +64,6 @@ module.exports = async ({ target, type = 'patch' }) => {
     const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
     packageJson.version = newVersion;
     fs.writeFileSync(packageJsonPath, JSON.stringify(packageJson, null, 2));
-
-    log.info(`📌 Nova versão gerada: ${newVersion}`);
 
     // ✅ Faz commit da versão
     git.run(`git add package.json`);
@@ -77,7 +75,7 @@ module.exports = async ({ target, type = 'patch' }) => {
     git.run(`git tag -a ${tagName} -m "🚀 Release ${tagName}"`);
     git.pushTags();
 
-    log.success(`Release ${tagName} criada e enviada para o repositório!`);
+    log.success(`✅ Release ${tagName} criada e enviada para o repositório!`);
 
     // ✅ Se for produção, mergeia na develop também
     if (target === 'production') {
@@ -88,5 +86,5 @@ module.exports = async ({ target, type = 'patch' }) => {
 
     // ✅ Volta para a branch original
     git.checkout(originalBranch);
-    log.success('Release concluída!');
+    log.success('✅ Release concluída!');
 };
