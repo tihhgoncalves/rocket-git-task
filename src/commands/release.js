@@ -42,8 +42,10 @@ module.exports = async ({ target, type = 'patch' }) => {
     const targetBranch = target === 'production' ? prodBranch : devBranch;
     const originalBranch = git.getCurrentBranch();
 
+    // verifica se existem commits não enviados
     git.ensureCleanWorkingDirectory();
 
+    // Carrega o branch de destino e faz um pull
     git.checkout(targetBranch);
     git.pull();
 
