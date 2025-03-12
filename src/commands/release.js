@@ -6,7 +6,15 @@ const fs = require('fs');
 
 // Função para incrementar a versão
 function incrementVersion(version, type, isBeta = false) {
-    const [major, minor, patch] = version.split('.').map(Number);
+    let [major, minor, patch] = version.split('.').map(Number);
+    let betaNumber = null;
+
+    // Se já for um beta, extraímos o número do beta atual
+    if (version.includes('-beta.')) {
+        const betaParts = version.split('-beta.');
+        version = betaParts[0]; // Remove o beta para processar a versão normal
+        betaNumber = parseInt(betaParts[1]) || 1;
+    }
 
     let newVersion;
     if (type === 'major') {
@@ -19,16 +27,10 @@ function incrementVersion(version, type, isBeta = false) {
 
     log.info(`📦 Versão atual: ${version}`);
 
-    // Se for beta (homologação), adiciona "-beta.1" e reseta contagem corretamente
+    // Se for beta (homologação), usa o contador do `package.json`
     if (isBeta) {
-        const existingBetaTags = execSync(`git tag -l "v${newVersion}-beta.*"`)
-            .toString()
-            .trim()
-            .split('\n')
-            .filter(tag => tag.startsWith(`v${newVersion}-beta.`));
-
-        const betaCount = existingBetaTags.length ? existingBetaTags.length + 1 : 1; // Se não houver betas, começa do 1
-        newVersion = `${newVersion}-beta.${betaCount}`;
+        const nextBetaNumber = betaNumber !== null ? betaNumber + 1 : 1;
+        newVersion = `${newVersion}-beta.${nextBetaNumber}`;
     }
 
     log.info(`📌 Nova versão gerada: ${newVersion}`);
