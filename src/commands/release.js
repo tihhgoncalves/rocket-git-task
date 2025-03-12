@@ -26,25 +26,31 @@ module.exports = async ({ target, type = 'patch' }) => {
         versionCommand = `npm version ${type} --preid=beta`;
     }
 
-    // Executa o comando para incrementar a versão automaticamente
-    const newVersion = execSync(versionCommand, { stdio: 'inherit' }).toString().trim();
+    try {
+        // Executa o comando para incrementar a versão automaticamente
+        execSync(versionCommand, { stdio: 'inherit' });
 
-    log.info(`📌 Nova versão gerada: ${newVersion}`);
+        // Obtém a nova versão do package.json após a atualização
+        const newVersion = require('../../package.json').version;
 
-    // Faz push da nova versão e das tags
-    git.push();
+        log.info(`📌 Nova versão gerada: ${newVersion}`);
 
-    const tagName = `v${newVersion}`;
-    git.run(`git tag -a ${tagName} -m "🚀 Release ${tagName}"`);
-    git.pushTags();
-
-    log.success(`✅ Release ${newVersion} criada e enviada para o repositório!`);
-
-    // Se for produção, mergeia na develop também
-    if (target === 'production') {
-        git.checkout(devBranch);
-        git.merge(prodBranch);
+        // Faz push da nova versão e das tags
         git.push();
+        git.pushTags();
+
+        log.success(`✅ Release ${newVersion} criada e enviada para o repositório!`);
+
+        // Se for produção, mergeia na develop também
+        if (target === 'production') {
+            git.checkout(devBranch);
+            git.merge(prodBranch);
+            git.push();
+        }
+
+    } catch (error) {
+        log.error(`❌ Erro ao criar release: ${error.message}`);
+        process.exit(1);
     }
 
     // Volta para a branch original
