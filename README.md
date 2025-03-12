@@ -80,12 +80,22 @@ Faz merge da homologação para produção e realiza o push.
 
 ### 6️⃣ Criar uma release
 
-Gera uma nova release automaticamente usando **`standard-version`**, incluindo changelog:
+Gera uma nova release automaticamente e adiciona uma tag no Git.
 
 ```sh
 git-task release production   # Para produção
-git-task release homolog      # Para homologação
+git-task release homolog      # Para homologação (beta)
 ```
+
+**Opcionalmente, você pode definir o tipo de incremento de versão**:
+
+```sh
+git-task release production --type major   # 1.6.4 → 2.0.0
+git-task release production --type minor   # 1.6.4 → 1.7.0
+git-task release production --type patch   # 1.6.4 → 1.6.5
+```
+
+Se for um release de **homologação**, ele será marcado como **beta** (`1.6.4-beta.1`, `1.6.4-beta.2`).
 
 ---
 
@@ -148,12 +158,6 @@ O Rocket Git Task é mantido com carinho por:
 
 ---
 
-## 📜 Histórico de Versões
-
-Confira todas as mudanças e novidades no [CHANGELOG.md](https://github.com/tihhgoncalves/rocket-git-task/blob/main/CHANGELOG.md).
-
----
-
 ## 🔗 Redes e Contato
 
 [![GitHub](https://img.shields.io/badge/GitHub-181717.svg?style=for-the-badge&logo=GitHub&logoColor=white)](https://github.com/tihhgoncalves)
@@ -164,7 +168,3 @@ Confira todas as mudanças e novidades no [CHANGELOG.md](https://github.com/tihh
 ## 🚀 Rocket Produtora Digital
 
 Criado com ♥ pela [Rocket Produtora Digital](https://www.produtorarocket.com)
-
----
-
-Quer que eu já te mande o arquivo pronto pra substituir no seu projeto?
