@@ -17,15 +17,16 @@ function incrementVersion(version, type, isBeta = false) {
         newVersion = `${major}.${minor}.${patch + 1}`;
     }
 
-    // Se for beta (homologação), adiciona o número incremental
+    // Se for beta (homologação), adiciona "-beta.1" e não soma betas antigos
     if (isBeta) {
-        // Conta quantas versões beta já existem
-        const betaCount = execSync(`git tag -l "v${newVersion}-beta.*"`)
+        const existingBetaTags = execSync(`git tag -l "v${newVersion}-beta.*"`)
             .toString()
             .trim()
-            .split('\n').length;
+            .split('\n')
+            .filter(tag => tag.startsWith(`v${newVersion}-beta.`));
 
-        newVersion = `${newVersion}-beta.${betaCount + 1}`;
+        const betaCount = existingBetaTags.length + 1; // Começa do 1
+        newVersion = `${newVersion}-beta.${betaCount}`;
     }
 
     return newVersion;
@@ -39,13 +40,12 @@ function getPackageVersion() {
 
 module.exports = async ({ target, type = 'patch' }) => {
     const { prodBranch, devBranch } = getBranches();
-    const originalBranch = git.getCurrentBranch();
     const targetBranch = target === 'production' ? prodBranch : devBranch;
+    const originalBranch = git.getCurrentBranch();
 
-    // verifica se existem commits não enviados
     git.ensureCleanWorkingDirectory();
 
-    // Carrega o branch de destino e faz um pull
+    // ✅ Troca para a branch de destino antes de atualizar o package.json
     git.checkout(targetBranch);
     git.pull();
 
@@ -55,7 +55,7 @@ module.exports = async ({ target, type = 'patch' }) => {
     const currentVersion = getPackageVersion();
     const newVersion = incrementVersion(currentVersion, type, target !== 'production');
 
-    // Atualiza o package.json com a nova versão
+    // ✅ Atualiza o package.json na branch de destino
     const packageJsonPath = 'package.json';
     const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
     packageJson.version = newVersion;
@@ -63,21 +63,26 @@ module.exports = async ({ target, type = 'patch' }) => {
 
     log.info(`📌 Nova versão gerada: ${newVersion}`);
 
-    // Cria uma nova tag e envia para o repositório
+    // ✅ Faz commit da versão
+    git.run(`git add package.json`);
+    git.run(`git commit -m "🔖 Bump versão para ${newVersion}"`);
+    git.push();
+
+    // ✅ Cria uma nova tag e envia para o repositório
     const tagName = `v${newVersion}`;
     git.run(`git tag -a ${tagName} -m "🚀 Release ${tagName}"`);
-    git.push();
     git.pushTags();
 
     log.success(`Release ${tagName} criada e enviada para o repositório!`);
 
-    // Se for produção, mergeia na develop também
+    // ✅ Se for produção, mergeia na develop também
     if (target === 'production') {
         git.checkout(devBranch);
         git.merge(prodBranch);
         git.push();
     }
 
+    // ✅ Volta para a branch original
     git.checkout(originalBranch);
     log.success('Release concluída!');
 };
