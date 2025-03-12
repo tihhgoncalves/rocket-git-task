@@ -30,10 +30,16 @@ module.exports = async ({ target }) => {
         git.run(`git commit -m "🚀 Deploy da ${currentBranch}"`);
         git.push(targetBranch);
 
+        // volta pra branch original
+        git.checkout(currentBranch);  
+
         log.success(`Deploy da task "${currentBranch}" concluído com sucesso!`);
     } catch (error) {
         log.error(`Falha ao fazer deploy da task "${currentBranch}".`);
         log.error(`Erro: ${error.message}`);
         process.exit(1);
+    } finally {
+        // garante que no final sempre volta pra branch original
+        git.checkout(currentBranch);   
     }
 };
