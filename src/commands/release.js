@@ -22,23 +22,24 @@ module.exports = async ({ target, type = 'patch' }) => {
     log.info(`📦 Versão atual: ${currentVersion}`);
     log.info(`🚀 Criando release para ${target}...`);
 
-    // Define o comando correto para incrementar a versão
-    let versionCommand = `npm version ${type}`;
-    if (isBeta) {
-        versionCommand = `npm version ${type} --preid=beta`;
-    }
-
     try {
-        // Executa o comando para incrementar a versão automaticamente
-        execSync(versionCommand, { stdio: 'inherit' });
+        let newVersion;
 
-        // Obtém a nova versão gerada após a atualização do package.json
-        const updatedPackageJson = JSON.parse(fs.readFileSync('package.json', 'utf8'));
-        const newVersion = updatedPackageJson.version;
+        if (isBeta) {
+            // Se for beta, garantimos que ele incremente corretamente
+            newVersion = execSync(`npm version ${type} --preid=beta --no-git-tag-version`, { encoding: 'utf-8' }).trim();
+            newVersion = JSON.parse(fs.readFileSync('package.json', 'utf8')).version; // Atualiza com o novo valor gerado
+        } else {
+            // Para produção, seguimos o fluxo normal do npm version
+            newVersion = execSync(`npm version ${type} --no-git-tag-version`, { encoding: 'utf-8' }).trim();
+        }
 
         log.info(`📌 Nova versão gerada: ${newVersion}`);
 
-        // Faz push da nova versão e das tags
+        // Faz commit e tag manualmente (pois removemos `git-tag-version` do npm version)
+        git.run(`git add package.json`);
+        git.run(`git commit -m "🔖 Bump versão para ${newVersion}"`);
+        git.run(`git tag -a v${newVersion} -m "🚀 Release ${newVersion}"`);
         git.push();
         git.pushTags();
 
