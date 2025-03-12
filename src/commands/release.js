@@ -17,7 +17,9 @@ function incrementVersion(version, type, isBeta = false) {
         newVersion = `${major}.${minor}.${patch + 1}`;
     }
 
-    // Se for beta (homologação), adiciona "-beta.1" e não soma betas antigos
+    log.info(`📦 Versão atual: ${version}`);
+
+    // Se for beta (homologação), adiciona "-beta.1" e reseta contagem corretamente
     if (isBeta) {
         const existingBetaTags = execSync(`git tag -l "v${newVersion}-beta.*"`)
             .toString()
@@ -25,13 +27,13 @@ function incrementVersion(version, type, isBeta = false) {
             .split('\n')
             .filter(tag => tag.startsWith(`v${newVersion}-beta.`));
 
-        const betaCount = existingBetaTags.length + 1; // Começa do 1
+        const betaCount = existingBetaTags.length ? existingBetaTags.length + 1 : 1; // Se não houver betas, começa do 1
         newVersion = `${newVersion}-beta.${betaCount}`;
     }
 
+    log.info(`📌 Nova versão gerada: ${newVersion}`);
     return newVersion;
 }
-
 
 // Obtém a versão atual do package.json
 function getPackageVersion() {
