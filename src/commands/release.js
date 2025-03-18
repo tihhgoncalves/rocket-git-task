@@ -32,9 +32,10 @@ module.exports = async ({ target, type = 'patch' }) => {
             throw new Error(`❌ Erro ao interpretar a versão atual: ${currentVersion}`);
         }
 
-        let major = parseInt(versionMatch[1]);
-        let minor = parseInt(versionMatch[2]);
-        let patch = parseInt(versionMatch[3]);
+        // Garante que nunca teremos valores `NaN`
+        let major = parseInt(versionMatch[1]) || 0;
+        let minor = parseInt(versionMatch[2]) || 0;
+        let patch = parseInt(versionMatch[3]) || 0;
         let betaNumber = versionMatch[5] ? parseInt(versionMatch[5]) : null;
 
         if (isBeta) {
@@ -57,7 +58,7 @@ module.exports = async ({ target, type = 'patch' }) => {
             }
             newVersion = `${major}.${minor}.${patch}-beta.${betaNumber}`;
         } else {
-            // Se for produção, removemos `-beta.X` e incrementamos conforme `--type`
+            // Se for produção, removemos `-beta.X` e aplicamos `--type`
             if (type === 'major') {
                 major++;
                 minor = 0;
