@@ -21,7 +21,6 @@ module.exports = async ({ target, type = 'patch' }) => {
     log.info(`📦 Versão atual: ${currentVersion}`);
     log.info(`🚀 Criando release para ${target}...`);
 
-    throw new Error(`❌ PAROU!`);
 
     let newVersion;
 
