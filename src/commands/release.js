@@ -43,7 +43,6 @@ module.exports = async ({ target, type = 'patch' }) => {
     const { prodBranch, devBranch } = getBranches();
     const targetBranch = target === 'production' ? prodBranch : devBranch;
     const originalBranch = git.getCurrentBranch();
-    const originalBranch = git.getCurrentBranch();
 
     git.ensureCleanWorkingDirectory();
 
