@@ -4,6 +4,10 @@ const log = require('../utils/log');
 const fs = require('fs');
 
 module.exports = async ({ target, type = 'patch' }) => {
+
+    log.error(`❌ TESTE!`);
+    process.exit(1);
+
     const { prodBranch, devBranch } = getBranches();
     const targetBranch = target === 'production' ? prodBranch : devBranch;
     const originalBranch = git.getCurrentBranch();
@@ -22,7 +26,7 @@ module.exports = async ({ target, type = 'patch' }) => {
     log.info(`🚀 Criando release para ${target}...`);
 
     log.error(`❌ PAROU!`);
-        process.exit(1);
+    process.exit(1);
 
 
     let newVersion;
