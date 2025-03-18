@@ -2,14 +2,10 @@ const { getBranches } = require('../config');
 const git = require('../utils/git');
 const log = require('../utils/log');
 const fs = require('fs');
-const fs = require('fs');
 
-module.exports = async ({ target, type = 'patch' }) => {
 module.exports = async ({ target, type = 'patch' }) => {
     const { prodBranch, devBranch } = getBranches();
     const targetBranch = target === 'production' ? prodBranch : devBranch;
-    const originalBranch = git.getCurrentBranch();
-    const isBeta = target !== 'production';
     const originalBranch = git.getCurrentBranch();
     const isBeta = target !== 'production';
 
@@ -25,18 +21,20 @@ module.exports = async ({ target, type = 'patch' }) => {
     log.info(`📦 Versão atual: ${currentVersion}`);
     log.info(`🚀 Criando release para ${target}...`);
 
+    throw new Error(`❌ PAROU!`);
+
     let newVersion;
 
     try {
         log.info(`🔥 Gerando versão ${isBeta ? 'beta' : 'estável'} manualmente...`);
 
-        // Extrai os números da versão
-        const versionMatch = currentVersion.match(/(\d+)\.(\d+)\.(\d+)(-beta\.(\d+))?/);
+        // Regex melhorada para capturar corretamente qualquer versão beta ou estável
+        const versionMatch = currentVersion.match(/^(\d+)\.(\d+)\.(\d+)(-beta\.(\d+))?$/);
         if (!versionMatch) {
             throw new Error(`❌ Erro ao interpretar a versão atual: ${currentVersion}`);
         }
 
-        // Garante que nunca teremos valores `NaN`
+        // Garante que `patch`, `major` e `minor` sempre tenham valores seguros
         let major = parseInt(versionMatch[1]) || 0;
         let minor = parseInt(versionMatch[2]) || 0;
         let patch = parseInt(versionMatch[3]) || 0;
@@ -97,21 +95,7 @@ module.exports = async ({ target, type = 'patch' }) => {
             git.merge(prodBranch);
             git.push();
         }
-        log.success(`✅ Release ${newVersion} criada e enviada para o repositório!`);
 
-        // Se for produção, mergeia na develop também
-        if (target === 'production') {
-            git.checkout(devBranch);
-            git.merge(prodBranch);
-            git.push();
-        }
-
-    } catch (error) {
-        log.error(`❌ Erro ao criar release: ${error.message}`);
-        process.exit(1);
-    }
-
-    // Volta para a branch original
     } catch (error) {
         log.error(`❌ Erro ao criar release: ${error.message}`);
         process.exit(1);
@@ -119,6 +103,5 @@ module.exports = async ({ target, type = 'patch' }) => {
 
     // Volta para a branch original
     git.checkout(originalBranch);
-    log.success('✅ Release concluída!');
     log.success('✅ Release concluída!');
 };
