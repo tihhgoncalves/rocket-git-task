@@ -46,4 +46,10 @@ module.exports = async ({ force }) => {
             git.checkout(prodBranch); // Se a task foi deletada, fica na produção
         }
     }
+
+    // Se chegou aqui, pode finalizar a task
+    git.checkout(prodBranch);
+    git.pull();
+    git.deleteBranch(currentBranch, force);
+    log.success(`Task "${currentBranch}" finalizada e removida.`);
 };
