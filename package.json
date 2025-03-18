@@ -1,6 +1,6 @@
 {
   "name": "rocket-git-task",
-  "version": "1.7.NaN-beta.9",
+  "version": "1.7.0-beta.9",
   "description": "Automação de fluxo de trabalho no Git para tasks, deploy e releases.",
   "bin": {
     "git-task": "./src/index.js"
