@@ -1,7 +1,6 @@
 const { getBranches } = require('../config');
 const git = require('../utils/git');
 const log = require('../utils/log');
-const { execSync } = require('child_process');
 const fs = require('fs');
 
 module.exports = async ({ target, type = 'patch' }) => {
@@ -9,7 +8,6 @@ module.exports = async ({ target, type = 'patch' }) => {
     const targetBranch = target === 'production' ? prodBranch : devBranch;
     const originalBranch = git.getCurrentBranch();
     const isBeta = target !== 'production';
-
     // verifica se existem commits não enviados
     git.ensureCleanWorkingDirectory();
 
@@ -17,33 +15,60 @@ module.exports = async ({ target, type = 'patch' }) => {
     git.checkout(targetBranch);
     git.pull();
 
-    // Obtém a versão atual antes do release
+    // Lendo o package.json atual
     const packageJson = JSON.parse(fs.readFileSync('package.json', 'utf8'));
-    const currentVersion = packageJson.version;
+    let currentVersion = packageJson.version;
 
     log.info(`📦 Versão atual: ${currentVersion}`);
     log.info(`🚀 Criando release para ${target}...`);
 
-    try {
-        let newVersion;
+    let newVersion;
 
-        if (isBeta) {
-            // Se for beta, garantimos que ele incremente corretamente
-            log.info('🔥 Gerando versão beta...');
-            execSync(`npm version ${type} --preid=beta --no-git-tag-version`, { stdio: 'inherit' });
-        } else {
-            // Para produção, seguimos o fluxo normal do npm version
-            log.info('🔥 Gerando versão de produção...');
-            execSync(`npm version ${type} --no-git-tag-version`, { stdio: 'inherit' });
+    try {
+        log.info(`🔥 Gerando versão ${isBeta ? 'beta' : 'estável'} manualmente...`);
+
+        // Extrai os números da versão
+        const versionMatch = currentVersion.match(/(\d+)\.(\d+)\.(\d+)(-beta\.(\d+))?/);
+        if (!versionMatch) {
+            throw new Error(`❌ Erro ao interpretar a versão atual: ${currentVersion}`);
         }
 
-        // Lendo novamente o package.json para garantir que a nova versão seja capturada
-        const updatedPackageJson = JSON.parse(fs.readFileSync('package.json', 'utf8'));
-        newVersion = updatedPackageJson.version;
+        let major = parseInt(versionMatch[1]);
+        let minor = parseInt(versionMatch[2]);
+        let patch = parseInt(versionMatch[3]);
+        let betaNumber = versionMatch[5] ? parseInt(versionMatch[5]) : null;
+
+        // Lógica para incrementar a versão com base no tipo passado
+        if (type === 'major') {
+            major++;
+            minor = 0;
+            patch = 0;
+            betaNumber = null;
+        } else if (type === 'minor') {
+            minor++;
+            patch = 0;
+            betaNumber = null;
+        } else if (type === 'patch') {
+            patch++;
+            betaNumber = null;
+        }
+
+        if (isBeta) {
+            // Se for beta, incrementamos corretamente
+            betaNumber = betaNumber !== null ? betaNumber + 1 : 1;
+            newVersion = `${major}.${minor}.${patch}-beta.${betaNumber}`;
+        } else {
+            // Se for produção, removemos qualquer sufixo beta
+            newVersion = `${major}.${minor}.${patch}`;
+        }
+
+        // Atualiza o package.json com a nova versão
+        packageJson.version = newVersion;
+        fs.writeFileSync('package.json', JSON.stringify(packageJson, null, 2));
 
         log.info(`📌 Nova versão gerada: ${newVersion}`);
 
-        // Faz commit e tag manualmente (pois removemos `git-tag-version` do npm version)
+        // Faz commit e tag manualmente
         git.run(`git add package.json`);
         git.run(`git commit -m "🔖 Bump versão para ${newVersion}"`);
         git.run(`git tag -a v${newVersion} -m "🚀 Release ${newVersion}"`);
