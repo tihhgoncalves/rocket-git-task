@@ -8,10 +8,9 @@ module.exports = async ({ target, type = 'patch' }) => {
     const targetBranch = target === 'production' ? prodBranch : devBranch;
     const originalBranch = git.getCurrentBranch();
     const isBeta = target !== 'production';
-    // verifica se existem commits não enviados
+
     git.ensureCleanWorkingDirectory();
 
-    // ✅ Troca para a branch de destino antes de atualizar o package.json
     git.checkout(targetBranch);
     git.pull();
 
@@ -38,27 +37,37 @@ module.exports = async ({ target, type = 'patch' }) => {
         let patch = parseInt(versionMatch[3]);
         let betaNumber = versionMatch[5] ? parseInt(versionMatch[5]) : null;
 
-        // Lógica para incrementar a versão com base no tipo passado
-        if (type === 'major') {
-            major++;
-            minor = 0;
-            patch = 0;
-            betaNumber = null;
-        } else if (type === 'minor') {
-            minor++;
-            patch = 0;
-            betaNumber = null;
-        } else if (type === 'patch') {
-            patch++;
-            betaNumber = null;
-        }
-
         if (isBeta) {
-            // Se for beta, incrementamos corretamente
-            betaNumber = betaNumber !== null ? betaNumber + 1 : 1;
+            // Se já era beta, só incrementa o beta
+            if (betaNumber !== null) {
+                betaNumber++;
+            } else {
+                // Se não era beta, primeiro aplica o `--type` e inicia `-beta.1`
+                if (type === 'major') {
+                    major++;
+                    minor = 0;
+                    patch = 0;
+                } else if (type === 'minor') {
+                    minor++;
+                    patch = 0;
+                } else if (type === 'patch') {
+                    patch++;
+                }
+                betaNumber = 1;
+            }
             newVersion = `${major}.${minor}.${patch}-beta.${betaNumber}`;
         } else {
-            // Se for produção, removemos qualquer sufixo beta
+            // Se for produção, removemos `-beta.X` e incrementamos conforme `--type`
+            if (type === 'major') {
+                major++;
+                minor = 0;
+                patch = 0;
+            } else if (type === 'minor') {
+                minor++;
+                patch = 0;
+            } else if (type === 'patch') {
+                patch++;
+            }
             newVersion = `${major}.${minor}.${patch}`;
         }
 
