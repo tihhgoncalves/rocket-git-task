@@ -26,7 +26,9 @@ module.exports = async ({ force }) => {
         // Verifica se há um commit de deploy da task na main
         const deployCommit = git.run(`git log ${prodBranch} --grep="Deploy da ${currentBranch}"`);
 
-        if (!deployCommit && !force) {
+        log.info(`Resultado do comando git log: ${deployCommit || 'Nenhum commit encontrado'}`);
+
+        if (!deployCommit.trim() && !force) {
             throw new Error(`A task "${currentBranch}" ainda não foi enviada para produção.`);
         }
 
