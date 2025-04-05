@@ -26,27 +26,20 @@ module.exports = async ({ force }) => {
         // Verifica se há um commit de deploy da task na main
         const deployCommit = git.run(`git log ${prodBranch} --grep="Deploy da ${currentBranch}"`);
 
-        log.info(`Resultado do comando git log: ${deployCommit}`);//corrigindo manualmente o log
-
         if (!deployCommit.trim() && !force) {
-            throw new Error(`A task "${currentBranch}" ainda não foi enviada para produção.`);
+            log.error(`A task "${currentBranch}" ainda não foi enviada para produção.`);
+            log.warn(`Use "git-task deploy production" para enviá-la.`);
+            log.warn(`Ou use "git-task finish --force" para forçar a exclusão.`);
+            git.checkout(currentBranch);
+            process.exit(1); // Garante que o processo será encerrado
+            return; 
         }
 
         // Se chegou aqui, pode finalizar a task
         git.deleteBranch(currentBranch, force);
         log.success(`Task "${currentBranch}" finalizada e removida.`);
+        git.checkout(prodBranch); //fica na produção
     } catch (error) {
-        log.error(error.message); //temporario, só pra entender o erro
-        log.warn(`Use "git-task deploy production" para enviá-la.`);
-        log.warn(`Ou use "git-task finish --force" para forçar a exclusão.`);
-        process.exit(1);
-    } finally {
-        // 🔍 Só tenta voltar para a branch original se ela ainda existir
-        const existingBranches = git.run(`git branch`);
-        if (existingBranches.includes(currentBranch)) {
-            git.checkout(currentBranch);
-        } else {
-            git.checkout(prodBranch); // Se a task foi deletada, fica na produção
-        }
+        log.error(error.message);
     }
 };

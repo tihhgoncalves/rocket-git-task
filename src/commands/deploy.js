@@ -25,13 +25,16 @@ module.exports = async ({ target }) => {
         git.checkout(targetBranch);
         git.pull();
 
-        // Faz o merge com squash
-        git.run(`git merge --squash ${currentBranch}`);
+        // Faz o merge com squash, forçando a resolução de conflitos
+        log.warn(`Forçando o merge da task "${currentBranch}" para "${targetBranch}"...`);
+        git.run(`git merge --squash -X theirs ${currentBranch}`);
+
+        // Faz o commit e o push
         git.run(`git commit -m "🚀 Deploy da ${currentBranch}"`);
         git.push(targetBranch);
 
-        // volta pra branch original
-        git.checkout(currentBranch);  
+        // Volta para a branch original
+        git.checkout(currentBranch);
 
         log.success(`Deploy da task "${currentBranch}" concluído com sucesso!`);
     } catch (error) {
