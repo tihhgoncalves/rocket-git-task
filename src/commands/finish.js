@@ -37,6 +37,7 @@ module.exports = async ({ force }) => {
         log.error(error.message);
         log.warn(`Use "git-task deploy production" para enviá-la.`);
         log.warn(`Ou use "git-task finish --force" para forçar a exclusão.`);
+        process.exit(1);
     } finally {
         // 🔍 Só tenta voltar para a branch original se ela ainda existir
         const existingBranches = git.run(`git branch`);
