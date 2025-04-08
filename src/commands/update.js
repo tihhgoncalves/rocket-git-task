@@ -3,10 +3,12 @@ const log = require('../utils/log');
 const { getBranches } = require('../config');
 
 module.exports = async () => {
+
+    // seleciona branchs
     const currentBranch = git.getCurrentBranch();
     const { prodBranch } = getBranches();
 
-    // Verifica se está em uma task
+    // Verifica se está em uma task (obrigatório)
     if (!currentBranch.startsWith('task/')) {
         log.error(`O comando "update" só pode ser executado em uma branch de task.`);
         log.error(`Você está na branch "${currentBranch}".`);
@@ -33,6 +35,7 @@ module.exports = async () => {
         git.run(`git merge origin/${prodBranch} -m "update: sincronizando com '${prodBranch}'"`);
 
         log.success(`Task "${currentBranch}" atualizada com sucesso!`);
+        
     } catch (error) {
         log.error(`Falha ao atualizar a task "${currentBranch}".`);
         log.error(`Erro: ${error.message}`);
