@@ -21,22 +21,25 @@ module.exports = async ({ target }) => {
     log.info(`Fazendo deploy da task "${currentBranch}" para "${targetBranch}"...`);
 
     try {
-        // Checkout na branch de destino (develop ou production)
-        git.checkout(targetBranch);
-        git.pull();
+      // Checkout na branch de destino (develop ou production)
+      git.checkout(targetBranch);
+      git.pull();
 
-        // Faz o merge com squash, forçando a resolução de conflitos
-        log.warn(`Forçando o merge da task "${currentBranch}" para "${targetBranch}"...`);
-        git.run(`git merge --squash -X theirs ${currentBranch}`);
+      // Faz o merge com squash, permitindo conflitos
+      log.info(`Preparando o merge da task "${currentBranch}" para "${targetBranch}"...`);
+      git.run(`git merge --squash ${currentBranch}`);
 
-        // Faz o commit e o push
-        git.run(`git commit -m "🚀 Deploy da ${currentBranch}"`);
-        git.push(targetBranch);
+      // Faz o commit com mensagem personalizada
+      git.run(
+        `git commit -m "🚀 Deploy da task '${currentBranch}' para ${targetBranch}"`
+      );
 
-        // Volta para a branch original
-        git.checkout(currentBranch);
+      git.push(targetBranch);
 
-        log.success(`Deploy da task "${currentBranch}" concluído com sucesso!`);
+      // Volta para a branch original
+      git.checkout(currentBranch);
+
+      log.success(`Deploy da task "${currentBranch}" concluído com sucesso!`);
     } catch (error) {
         log.error(`Falha ao fazer deploy da task "${currentBranch}".`);
         log.error(`Erro: ${error.message}`);
