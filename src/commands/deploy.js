@@ -26,9 +26,7 @@ module.exports = async ({ target }) => {
       git.pull();
 
       // Faz o merge com squash, permitindo conflitos
-      log.info(
-        `Preparando o merge da task "${currentBranch}" para "${targetBranch}"...`
-      );
+      log.info(`Preparando o merge da task "${currentBranch}" para "${targetBranch}"...`);
       git.run(`git merge --squash ${currentBranch}`);
 
       // Faz o commit com mensagem personalizada
