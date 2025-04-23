@@ -6,7 +6,16 @@ module.exports = async ({ target }) => {
     // seleciona branchs
     const currentBranch = git.getCurrentBranch();
     const { devBranch, prodBranch } = getBranches();
+
+    // valida target
+    if (!target || (target !== 'production' && target !== 'homolog')) {
+        log.error(`Você precisa especificar um target válido: "homolog" ou "production".`);
+        process.exit(1);
+    }
+      
     const targetBranch = target === 'production' ? prodBranch : devBranch;
+      
+    
 
     // Verifica se está em uma task (obrigatório)
     if (!currentBranch.startsWith('task/')) {
