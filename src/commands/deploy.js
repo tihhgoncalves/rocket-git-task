@@ -25,27 +25,36 @@ module.exports = async ({ target }) => {
       git.checkout(targetBranch);
       git.pull();
 
+      // Simula merge para verificar conflitos antes de continuar
+			const result = git.run(`git merge --no-commit --no-ff ${currentBranch}`, {
+					stdio: "pipe",
+					allowError: true,
+			});
+			
+			// Aborta o merge SEMPRE, com ou sem conflito
+			git.run("git merge --abort");
+			
+			// Se houver conflito, avisa e sai
+			if (result.stderr && result.stderr.includes("CONFLICT")) {
+					log.error(`Conflito detectado! Resolva os conflitos na sua task com "git-task update ${target}" antes de fazer o deploy.`);
+					git.checkout(currentBranch);
+					process.exit(1);
+			}
+  
       // Faz o merge com squash, permitindo conflitos
-      log.info(`Preparando o merge da task "${currentBranch}" para "${targetBranch}"...`);
+      log.info(`Preparando o merge squash de "${currentBranch}" em "${targetBranch}"...`);
       git.run(`git merge --squash ${currentBranch}`);
+      git.run(`git commit -m "🚀 Deploy da task ${currentBranch} para ${targetBranch}"`);
+      git.push();
 
-      // Faz o commit com mensagem personalizada
-      git.run(
-        `git commit -m "🚀 Deploy da task '${currentBranch}' para ${targetBranch}"`
-      );
 
-      git.push(targetBranch);
+      log.success(`Deploy da task "${currentBranch}" para "${target}" concluído com sucesso!`);
 
       // Volta para a branch original
       git.checkout(currentBranch);
 
-      log.success(`Deploy da task "${currentBranch}" concluído com sucesso!`);
     } catch (error) {
-        log.error(`Falha ao fazer deploy da task "${currentBranch}".`);
-        log.error(`Erro: ${error.message}`);
+        log.error(`Erro ao tentar fazer o deploy: ${error.message}`);
         process.exit(1);
-    } finally {
-        // garante que no final sempre volta pra branch original
-        git.checkout(currentBranch);   
     }
 };

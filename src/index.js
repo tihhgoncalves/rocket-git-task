@@ -62,7 +62,18 @@ yargs(hideBin(process.argv))
             description: 'Força a finalização da task sem verificar o merge'
         });
     }, finish)
-    .command('update', '📌 Atualiza a task atual com as mudanças do develop', () => {}, update)
+    .command(
+        'update <target>',
+        '📌 Atualiza a task atual com as mudanças de uma branch alvo',
+        (yargs) => {
+          return yargs.positional('target', {
+            describe: 'Target para atualizar (homolog ou production)',
+            type: 'string',
+            choices: ['homolog', 'production'],
+          });
+        },
+        (argv) => update({ target: argv.target })
+      )
     .help()
     .version(`🚀 Rocket Git-Task v${version}`)
     .help()
