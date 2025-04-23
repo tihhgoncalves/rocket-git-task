@@ -28,7 +28,7 @@ module.exports = async ({ target }) => {
         // Simula merge para verificar conflitos antes de continuar
         const result = git.run(`git merge --no-commit --no-ff ${currentBranch}`, { stdio: 'pipe', allowError: true });
         if (result.code !== 0) {
-            log.error(`Conflito detectado! Resolva os conflitos na sua task com "git-task update ${targetBranch}" antes de fazer o deploy.`);
+            log.error(`Conflito detectado! Resolva os conflitos na sua task com "git-task update ${target}" antes de fazer o deploy.`);
             git.run('git merge --abort');
             process.exit(1);
         }
@@ -42,7 +42,7 @@ module.exports = async ({ target }) => {
         // Volta para a branch original
         git.checkout(currentBranch);
 
-        log.success(`Deploy da task "${currentBranch}" em "${targetBranch}" concluído com sucesso!`);
+        log.success(`Deploy da task "${currentBranch}" em "${target}" concluído com sucesso!`);
 
     } catch (error) {
         log.error(`Erro ao tentar fazer o deploy: ${error.message}`);
