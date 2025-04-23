@@ -31,7 +31,7 @@ module.exports = async ({ target }) => {
         allowError: true,
     });
     
-    if (result.stderr.includes("CONFLICT")) {
+    if (result.stderr && result.stderr.includes("CONFLICT")) {
         log.error(`Conflito detectado! Resolva os conflitos na sua task com "git-task update ${target}" antes de fazer o deploy.`);
     
         // ABORTA o merge antes de trocar de branch
