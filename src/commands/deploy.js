@@ -44,15 +44,15 @@ module.exports = async ({ target }) => {
       // Faz o merge com squash, permitindo conflitos
       log.info(`Preparando o merge squash de "${currentBranch}" em "${targetBranch}"...`);
       git.run(`git merge --squash ${currentBranch}`);
+      git.run(`git commit -m "🚀 Deploy da task ${currentBranch} para ${targetBranch}"`);
+      git.push();
+
 
       log.success(`Deploy da task "${currentBranch}" para "${target}" concluído com sucesso!`);
 
       // Volta para a branch original
       git.checkout(currentBranch);
 
-      log.success(
-        `Deploy da task "${currentBranch}" em "${target}" concluído com sucesso!`
-      );
     } catch (error) {
         log.error(`Erro ao tentar fazer o deploy: ${error.message}`);
         process.exit(1);
