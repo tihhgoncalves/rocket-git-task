@@ -30,6 +30,10 @@ module.exports = async ({ target }) => {
         if (result.code !== 0) {
             log.error(`Conflito detectado! Resolva os conflitos na sua task com "git-task update ${target}" antes de fazer o deploy.`);
             git.run('git merge --abort');
+
+            // Retorna para a branch da task
+            git.checkout(currentBranch);
+            
             process.exit(1);
         }
 
