@@ -25,21 +25,24 @@ module.exports = async ({ target }) => {
       git.checkout(targetBranch);
       git.pull();
 
-      // Simula merge para verificar conflitos antes de continuar
-      const result = git.run(`git merge --no-commit --no-ff ${currentBranch}`, {
+     // Simula merge para verificar conflitos antes de continuar
+    const result = git.run(`git merge --no-commit --no-ff ${currentBranch}`, {
         stdio: "pipe",
         allowError: true,
-      });
-
-      if (result.stderr.includes("CONFLICT")) {
+    });
+    
+    if (result.stderr.includes("CONFLICT")) {
         log.error(`Conflito detectado! Resolva os conflitos na sua task com "git-task update ${target}" antes de fazer o deploy.`);
+    
+        // ABORTA o merge antes de trocar de branch
         git.run("git merge --abort");
-
-        // Volta pra task atual e executa o rebase
+    
+        // Agora sim pode voltar pra task
         git.checkout(currentBranch);
-        
+    
         process.exit(1);
-      }
+    }
+  
 
       // Faz o merge com squash, permitindo conflitos
       log.info(
