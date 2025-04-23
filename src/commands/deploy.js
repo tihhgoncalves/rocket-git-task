@@ -21,33 +21,40 @@ module.exports = async ({ target }) => {
     log.info(`Fazendo deploy da task "${currentBranch}" para "${targetBranch}"...`);
 
     try {
-        // Checkout na branch de destino (develop ou production)
-        git.checkout(targetBranch);
-        git.pull();
+      // Checkout na branch de destino (develop ou production)
+      git.checkout(targetBranch);
+      git.pull();
 
-        // Simula merge para verificar conflitos antes de continuar
-        const result = git.run(`git merge --no-commit --no-ff ${currentBranch}`, { stdio: 'pipe', allowError: true });
-        if (result.code !== 0) {
-            log.error(`Conflito detectado! Resolva os conflitos na sua task com "git-task update ${target}" antes de fazer o deploy.`);
-            git.run('git merge --abort');
+      // Simula merge para verificar conflitos antes de continuar
+      const result = git.run(`git merge --no-commit --no-ff ${currentBranch}`, {
+        stdio: "pipe",
+        allowError: true,
+      });
 
-            // Retorna para a branch da task
-            git.checkout(currentBranch);
-            
-            process.exit(1);
-        }
+      if (result.stderr.includes("CONFLICT")) {
+        log.error(
+          `Conflito detectado! Resolva os conflitos na sua task com "git-task update ${target}" antes de fazer o deploy.`
+        );
+        git.run("git merge --abort");
+        process.exit(1);
+      }
 
-        // Faz o merge com squash, permitindo conflitos
-        log.info(`Preparando o merge squash de "${currentBranch}" em "${targetBranch}"...`);
-        git.run(`git merge --squash ${currentBranch}`);
+      // Faz o merge com squash, permitindo conflitos
+      log.info(
+        `Preparando o merge squash de "${currentBranch}" em "${targetBranch}"...`
+      );
+      git.run(`git merge --squash ${currentBranch}`);
 
-        log.success(`Merge squash preparado. Agora você pode revisar e commitar as mudanças.`);
+      log.success(
+        `Merge squash preparado. Agora você pode revisar e commitar as mudanças.`
+      );
 
-        // Volta para a branch original
-        git.checkout(currentBranch);
+      // Volta para a branch original
+      git.checkout(currentBranch);
 
-        log.success(`Deploy da task "${currentBranch}" em "${target}" concluído com sucesso!`);
-
+      log.success(
+        `Deploy da task "${currentBranch}" em "${target}" concluído com sucesso!`
+      );
     } catch (error) {
         log.error(`Erro ao tentar fazer o deploy: ${error.message}`);
         process.exit(1);
