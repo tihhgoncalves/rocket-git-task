@@ -32,10 +32,12 @@ module.exports = async ({ target }) => {
       });
 
       if (result.stderr.includes("CONFLICT")) {
-        log.error(
-          `Conflito detectado! Resolva os conflitos na sua task com "git-task update ${target}" antes de fazer o deploy.`
-        );
+        log.error(`Conflito detectado! Resolva os conflitos na sua task com "git-task update ${target}" antes de fazer o deploy.`);
         git.run("git merge --abort");
+
+        // Volta pra task atual e executa o rebase
+        git.checkout(currentBranch);
+        
         process.exit(1);
       }
 
