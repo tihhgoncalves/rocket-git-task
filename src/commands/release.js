@@ -95,19 +95,23 @@ module.exports = async ({ target, type = 'patch' }) => {
             git.run(`git tag -a v${version} -m "🚀 Release ${version}"`);
             git.pushTags();
 
+            // Se for produção, sincroniza develop com main
             if (!isBeta) {
                 git.checkout(devBranch);
                 git.pull();
-                git.merge(currentBranch);
+                git.merge(prodBranch); // merge main -> develop
                 git.push();
             }
 
             git.checkout(currentBranch);
 
-            // informa que o release foi publicado
             log.success(`Release ${version} publicada com sucesso!`);
             log.info(`Branch que foi publicada '${targetBranch}'`);
             log.info(`Tag criada v${version} criada!`);
+
+            if (!isBeta) {
+                log.info(`Homolog (${devBranch}) sincronizado com as novidades da produção (${prodBranch})!`);
+            }
 
         } catch (error) {
             log.error(`Erro ao publicar release: ${error.message}`);
