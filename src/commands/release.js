@@ -62,7 +62,6 @@ module.exports = async ({ action, type = 'patch' }) => {
             git.run(`git add package.json`);
             git.run(`git commit -m "🔖 Bump versão para ${newVersion}"`);
             git.run(`git push -u origin ${releaseBranch}`);
-            git.pushTags();
 
             log.success(`✅ Release ${newVersion} criada na branch ${releaseBranch}!`);
             log.info(`\x1b[34mℹ️  Branch criada: ${releaseBranch}\nExemplo de deploy para esse release:\n  git-task deploy ${newVersion}\x1b[0m`);
