@@ -58,33 +58,13 @@ git-task update
 
 ---
 
-### 4️⃣ Fazer deploy de uma task para homologação
+### 4️⃣ Criar uma release
+
+Gera uma nova branch de release baseada na branch de destino (produção ou homologação):
 
 ```sh
-git-task deploy homolog
-```
-
-Faz merge da task no branch de homologação e faz o push automaticamente.
-
----
-
-### 5️⃣ Fazer deploy de homologação para produção
-
-```sh
-git-task deploy production
-```
-
-Faz merge da homologação para produção e realiza o push.
-
----
-
-### 6️⃣ Criar uma release
-
-Gera uma nova release automaticamente e adiciona uma tag no Git.
-
-```sh
-git-task release production   # Para produção
-git-task release homolog      # Para homologação (beta)
+git-task release production   # Cria um release para produção (ex: release/1.2.3)
+git-task release homolog      # Cria um release para homologação/beta (ex: release/1.2.3-beta.1)
 ```
 
 **Opcionalmente, você pode definir o tipo de incremento de versão**:
@@ -96,6 +76,30 @@ git-task release production --type patch   # 1.6.4 → 1.6.5
 ```
 
 Se for um release de **homologação**, ele será marcado como **beta** (`1.6.4-beta.1`, `1.6.4-beta.2`).
+
+---
+
+### 5️⃣ Fazer deploy de uma task para um release
+
+Agora, o deploy é feito diretamente para uma branch de release específica (e não mais para develop/main):
+
+```sh
+git-task deploy 1.2.3         # Faz deploy da task para release/1.2.3
+git-task deploy 1.2.3-beta.1  # Faz deploy da task para release/1.2.3-beta.1
+```
+
+---
+
+### 6️⃣ Publicar um release
+
+Depois de testar e aprovar o release, publique-o para a branch de destino (main ou develop):
+
+```sh
+# Estando na branch release/1.2.3 ou release/1.2.3-beta.1
+git-task release publish
+```
+
+- Se for um release de produção, além de publicar na main, o develop será sincronizado automaticamente com as novidades da produção.
 
 ---
 
