@@ -79,14 +79,13 @@ module.exports = async ({ target, type = 'patch' }) => {
 
         log.info(`📌 Nova versão gerada: ${newVersion}`);
 
-        // Faz commit e tag manualmente
+        // Faz commit (NÃO cria tag agora)
         git.run(`git add package.json`);
         git.run(`git commit -m "🔖 Bump versão para ${newVersion}"`);
-        git.run(`git tag -a v${newVersion} -m "🚀 Release ${newVersion}"`);
-        git.push();
-        git.pushTags();
+        git.run(`git push --set-upstream origin ${releaseBranch}`);
 
         log.success(`✅ Release ${newVersion} criada e enviada para o repositório!`);
+        log.info(`\x1b[34mℹ️  Branch criada: ${releaseBranch}\nExemplo de deploy para esse release:\n  git-task deploy ${newVersion}\x1b[0m`);
 
         // Se for produção, mergeia na develop também
         if (target === 'production') {
