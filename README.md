@@ -58,36 +58,28 @@ git-task update
 
 ---
 
-### 4️⃣ Fazer deploy de uma task para homologação
+### 4️⃣ Fazer deploy de uma task
+
+Envie sua task para homologação, produção ou para um release específico:
 
 ```sh
 git-task deploy homolog
-```
-
-Faz merge da task no branch de homologação e faz o push automaticamente.
-
----
-
-### 5️⃣ Fazer deploy de homologação para produção
-
-```sh
 git-task deploy production
+git-task deploy 1.2.4-beta.2   # envia para a branch release/1.2.4-beta.2
 ```
-
-Faz merge da homologação para produção e realiza o push.
 
 ---
 
-### 6️⃣ Criar uma release
+### 5️⃣ Criar um release
 
-Gera uma nova release automaticamente e adiciona uma tag no Git.
+Cria uma branch de release com a próxima versão e já gera a tag correspondente:
 
 ```sh
-git-task release production   # Para produção
-git-task release homolog      # Para homologação (beta)
+git-task release homolog      # cria release beta a partir do develop
+git-task release production   # cria release estável a partir do main
 ```
 
-**Opcionalmente, você pode definir o tipo de incremento de versão**:
+Você pode definir o tipo de incremento de versão:
 
 ```sh
 git-task release production --type major   # 1.6.4 → 2.0.0
@@ -95,11 +87,31 @@ git-task release production --type minor   # 1.6.4 → 1.7.0
 git-task release production --type patch   # 1.6.4 → 1.6.5
 ```
 
-Se for um release de **homologação**, ele será marcado como **beta** (`1.6.4-beta.1`, `1.6.4-beta.2`).
+---
+
+### 6️⃣ Publicar um release
+
+Dentro da branch de release, publique o conteúdo para o ambiente correto:
+
+```sh
+git-task release publish
+```
+
+Releases beta são mergeados no branch de homologação; releases estáveis vão para produção e também são sincronizados com homologação.
 
 ---
 
-### 7️⃣ Finalizar uma task
+### 7️⃣ Finalizar um release
+
+Após publicar, remova a branch de release:
+
+```sh
+git-task release finish
+```
+
+---
+
+### 8️⃣ Finalizar uma task
 
 ```sh
 git-task finish
@@ -113,7 +125,7 @@ git-task finish --force
 
 ---
 
-### 8️⃣ Versão e Ajuda
+### 9️⃣ Versão e Ajuda
 
 Para exibir a versão atual:
 

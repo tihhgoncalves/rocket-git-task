@@ -29,8 +29,8 @@ yargs(hideBin(process.argv))
     📌 Comandos disponíveis:
     - init         Inicializa o Rocket Git-Task no repositório
     - create       Cria uma nova task no fluxo de desenvolvimento
-    - deploy       Faz deploy da task para homologação ou produção
-    - release      Gera um release oficial do projeto
+    - deploy       Faz deploy da task para uma branch de destino
+    - release      Gerencia o fluxo de releases
     - finish       Finaliza uma task após o merge para produção
     - update       Atualiza a task com mudanças do develop
     `)
@@ -41,18 +41,22 @@ yargs(hideBin(process.argv))
             type: 'string'
         });
     }, create)
-    .command('deploy <target>', '📌 Faz deploy da task para homologação ou produção', (yargs) => {
+    .command('deploy <target>', '📌 Faz deploy da task para uma branch de destino', (yargs) => {
         yargs.positional('target', {
-            describe: 'Destino do deploy',
-            type: 'string',
-            choices: ['homolog', 'production']
+            describe: 'Destino do deploy (homolog, production ou release)',
+            type: 'string'
         });
     }, deploy)
-    .command('release <target>', '📌 Gera um release oficial do projeto', (yargs) => {
-        yargs.positional('target', {
-            describe: 'Destino do release',
+    .command('release <action>', '📌 Gerencia o fluxo de releases do projeto', (yargs) => {
+        yargs.positional('action', {
+            describe: 'Ação do release',
             type: 'string',
-            choices: ['homolog', 'production']
+            choices: ['homolog', 'production', 'publish', 'finish']
+        });
+        yargs.option('type', {
+            describe: 'Tipo de incremento de versão',
+            choices: ['patch', 'minor', 'major'],
+            default: 'patch'
         });
     }, release)
     .command('finish', '📌 Finaliza a task atual após o deploy', (yargs) => {
