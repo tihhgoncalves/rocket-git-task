@@ -63,8 +63,9 @@ module.exports = async ({ target, type = 'patch' }) => {
             git.run(`git commit -m "🔖 Bump versão para ${newVersion}"`);
             git.run(`git push -u origin ${releaseBranch}`);
 
-            log.success(`✅ Release ${newVersion} criada na branch ${releaseBranch}!`);
-            log.info(`\x1b[34mℹ️  Branch criada: ${releaseBranch}\nExemplo de deploy para esse release:\n  git-task deploy ${newVersion}\x1b[0m`);
+            log.success(`Release ${newVersion} criada!`);
+            log.info(`Branch criada: '${releaseBranch}'`);
+            log.info(`Exemplo de deploy para esse release: 'git-task deploy ${newVersion}'`);
             git.checkout(originalBranch);
         } catch (error) {
             log.error(`❌ Erro ao criar release: ${error.message}`);
@@ -99,9 +100,9 @@ module.exports = async ({ target, type = 'patch' }) => {
 
             git.pushTags();
             git.checkout(currentBranch);
-            log.success(`✅ Release ${version} publicada em ${targetBranch}!`);
+            log.success(`Release ${version} publicada em ${targetBranch}!`);
         } catch (error) {
-            log.error(`❌ Erro ao publicar release: ${error.message}`);
+            log.error(`Erro ao publicar release: ${error.message}`);
             git.checkout(currentBranch);
             process.exit(1);
         }
@@ -126,9 +127,9 @@ module.exports = async ({ target, type = 'patch' }) => {
         try {
             git.checkout(targetBranch);
             git.deleteBranch(currentBranch);
-            log.success(`✅ Release ${version} finalizado!`);
+            log.success(`Release ${version} finalizado!`);
         } catch (error) {
-            log.error(`❌ Erro ao finalizar release: ${error.message}`);
+            log.error(`Erro ao finalizar release: ${error.message}`);
             process.exit(1);
         }
         return;
