@@ -61,7 +61,6 @@ module.exports = async ({ action, type = 'patch' }) => {
 
             git.run(`git add package.json`);
             git.run(`git commit -m "🔖 Bump versão para ${newVersion}"`);
-            git.run(`git tag -a v${newVersion} -m "🚀 Release ${newVersion}"`);
             git.run(`git push -u origin ${releaseBranch}`);
             git.pushTags();
 
