@@ -41,11 +41,11 @@ yargs(hideBin(process.argv))
             type: 'string'
         });
     }, create)
-    .command('deploy <target>', '📌 Faz deploy da task para homologação ou produção', (yargs) => {
+    .command('deploy <target>', '📌 Faz deploy da task para um release', (yargs) => {
         yargs.positional('target', {
-            describe: 'Destino do deploy',
-            type: 'string',
-            choices: ['homolog', 'production']
+            describe: 'Versão do release de destino (ex: 1.2.3 ou 1.2.3-beta.1)',
+            type: 'string'
+            // choices removido!
         });
     }, deploy)
     .command('release <target>', '📌 Gera um release oficial do projeto', (yargs) => {
