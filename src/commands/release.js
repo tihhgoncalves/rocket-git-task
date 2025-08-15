@@ -103,7 +103,12 @@ module.exports = async ({ target, type = 'patch' }) => {
             }
 
             git.checkout(currentBranch);
-            log.success(`Release ${version} publicada em ${targetBranch} e tag v${version} criada!`);
+
+            // informa que o release foi publicado
+            log.success(`Release ${version} publicada com sucesso!`);
+            log.info(`Branch que foi publicada '${targetBranch}'`);
+            log.info(`Tag criada v${version} criada!`);
+
         } catch (error) {
             log.error(`Erro ao publicar release: ${error.message}`);
             git.checkout(currentBranch);
