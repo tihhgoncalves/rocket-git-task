@@ -22,16 +22,18 @@ yargs(hideBin(process.argv))
 
     🔹 Uso: git-task <comando> [opções]
 
-    📌 Targets disponíveis:
-    - homolog      (Homologação)
-    - production   (Produção)
+    📌 Fluxo principal:
+    - Crie uma task: git-task create <nome>
+    - Crie um release: git-task release homolog|production
+    - Faça deploy da task para um release: git-task deploy <versão>   (ex: git-task deploy 1.2.3-beta.1)
+    - Publique o release: git-task release publish   (estando na branch release/<versão>)
 
     📌 Comandos disponíveis:
     - init         Inicializa o Rocket Git-Task no repositório
     - create       Cria uma nova task no fluxo de desenvolvimento
-    - deploy       Faz deploy da task para homologação ou produção
-    - release      Gera um release oficial do projeto
-    - finish       Finaliza uma task após o merge para produção
+    - deploy       Faz deploy da task para uma branch de release (ex: 1.2.3 ou 1.2.3-beta.1)
+    - release      Cria um novo release ou publica um release já criado
+    - finish       Finaliza uma task após o deploy
     - update       Atualiza a task com mudanças do develop
     `)
     .command('init', '📌 Inicializa o Rocket Git-Task no repositório', () => {}, init)
@@ -41,14 +43,13 @@ yargs(hideBin(process.argv))
             type: 'string'
         });
     }, create)
-    .command('deploy <target>', '📌 Faz deploy da task para um release', (yargs) => {
+    .command('deploy <target>', '📌 Faz deploy da task para uma branch de release (ex: 1.2.3 ou 1.2.3-beta.1)', (yargs) => {
         yargs.positional('target', {
             describe: 'Versão do release de destino (ex: 1.2.3 ou 1.2.3-beta.1)',
             type: 'string'
-            // choices removido!
         });
     }, deploy)
-    .command('release <target>', '📌 Gera um release oficial do projeto, ou publica um release já criado', (yargs) => {
+    .command('release <target>', '📌 Cria um novo release ("homolog" ou "production") ou publica um release já criado ("publish")', (yargs) => {
         yargs.positional('target', {
             describe: 'Destino do release ("homolog", "production") para criar, ou "publish" para publicar o release atual',
             type: 'string'
