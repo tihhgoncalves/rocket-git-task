@@ -4,18 +4,17 @@ const log = require('../utils/log');
 const fs = require('fs');
 
 module.exports = async ({ target, type = 'patch' }) => {
-
     const { prodBranch, devBranch } = getBranches();
-    const targetBranch = target === 'production' ? prodBranch : devBranch;
-    const originalBranch = git.getCurrentBranch();
-    const isBeta = target !== 'production';
+    const isProduction = target === 'production';
+    const baseBranch = isProduction ? prodBranch : devBranch;
 
     git.ensureCleanWorkingDirectory();
 
-    git.checkout(targetBranch);
+    // Atualiza a branch base
+    git.checkout(baseBranch);
     git.pull();
 
-    // Lendo o package.json atual
+    // Lê o package.json atual
     const packageJson = JSON.parse(fs.readFileSync('package.json', 'utf8'));
     let currentVersion = packageJson.version;
 
@@ -25,26 +24,22 @@ module.exports = async ({ target, type = 'patch' }) => {
     let newVersion;
 
     try {
-        log.info(`🔥 Gerando versão ${isBeta ? 'beta' : 'estável'} manualmente...`);
-
-        // Regex melhorada para capturar corretamente qualquer versão beta ou estável
+        // Regex para capturar versão
         const versionMatch = currentVersion.match(/^(\d+)\.(\d+)\.(\d+)(-beta\.(\d+))?$/);
         if (!versionMatch) {
             throw new Error(`❌ Erro ao interpretar a versão atual: ${currentVersion}`);
         }
 
-        // Garante que `patch`, `major` e `minor` sempre tenham valores seguros
         let major = parseInt(versionMatch[1]) || 0;
         let minor = parseInt(versionMatch[2]) || 0;
         let patch = parseInt(versionMatch[3]) || 0;
         let betaNumber = versionMatch[5] ? parseInt(versionMatch[5]) : null;
 
-        if (isBeta) {
-            // Se já era beta, só incrementa o beta
+        if (!isProduction) {
+            // Homologação (beta)
             if (betaNumber !== null) {
                 betaNumber++;
             } else {
-                // Se não era beta, primeiro aplica o `--type` e inicia `-beta.1`
                 if (type === 'major') {
                     major++;
                     minor = 0;
@@ -59,7 +54,7 @@ module.exports = async ({ target, type = 'patch' }) => {
             }
             newVersion = `${major}.${minor}.${patch}-beta.${betaNumber}`;
         } else {
-            // Se for produção, removemos `-beta.X` e aplicamos `--type`
+            // Produção
             if (type === 'major') {
                 major++;
                 minor = 0;
@@ -73,34 +68,27 @@ module.exports = async ({ target, type = 'patch' }) => {
             newVersion = `${major}.${minor}.${patch}`;
         }
 
-        // Atualiza o package.json com a nova versão
+        // Cria a branch de release
+        const releaseBranch = `release/${newVersion}`;
+        git.run(`git checkout -b ${releaseBranch} ${baseBranch}`);
+
+        // Atualiza o package.json
         packageJson.version = newVersion;
         fs.writeFileSync('package.json', JSON.stringify(packageJson, null, 2));
 
         log.info(`📌 Nova versão gerada: ${newVersion}`);
 
-        // Faz commit e tag manualmente
+        // Commit e tag na branch de release
         git.run(`git add package.json`);
         git.run(`git commit -m "🔖 Bump versão para ${newVersion}"`);
         git.run(`git tag -a v${newVersion} -m "🚀 Release ${newVersion}"`);
-        git.push();
+        git.push(releaseBranch);
         git.pushTags();
 
-        log.success(`✅ Release ${newVersion} criada e enviada para o repositório!`);
-
-        // Se for produção, mergeia na develop também
-        if (target === 'production') {
-            git.checkout(devBranch);
-            git.merge(prodBranch);
-            git.push();
-        }
-
+        log.success(`✅ Branch de release "${releaseBranch}" criada e enviada para o repositório!`);
+        log.info(`Finalize o release com: git-task release publish`);
     } catch (error) {
         log.error(`❌ Erro ao criar release: ${error.message}`);
         process.exit(1);
     }
-
-    // Volta para a branch original
-    git.checkout(originalBranch);
-    log.success('✅ Release concluída!');
 };
