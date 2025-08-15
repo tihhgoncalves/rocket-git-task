@@ -48,11 +48,10 @@ yargs(hideBin(process.argv))
             // choices removido!
         });
     }, deploy)
-    .command('release <target>', '📌 Gera um release oficial do projeto', (yargs) => {
+    .command('release <target>', '📌 Gera um release oficial do projeto, ou publica um release já criado', (yargs) => {
         yargs.positional('target', {
-            describe: 'Destino do release',
-            type: 'string',
-            choices: ['homolog', 'production']
+            describe: 'Destino do release ("homolog", "production") para criar, ou "publish" para publicar o release atual',
+            type: 'string'
         });
     }, release)
     .command('finish', '📌 Finaliza a task atual após o deploy', (yargs) => {
