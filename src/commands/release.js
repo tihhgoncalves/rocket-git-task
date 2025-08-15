@@ -3,13 +3,13 @@ const git = require('../utils/git');
 const log = require('../utils/log');
 const fs = require('fs');
 
-module.exports = async ({ action, type = 'patch' }) => {
+module.exports = async ({ target, type = 'patch' }) => {
     const { prodBranch, devBranch } = getBranches();
     const currentBranch = git.getCurrentBranch();
 
-    if (action === 'homolog' || action === 'production') {
-        const baseBranch = action === 'production' ? prodBranch : devBranch;
-        const isBeta = action !== 'production';
+    if (target === 'homolog' || target === 'production') {
+        const baseBranch = target === 'production' ? prodBranch : devBranch;
+        const isBeta = target !== 'production';
         const originalBranch = currentBranch;
 
         git.ensureCleanWorkingDirectory();
@@ -20,7 +20,7 @@ module.exports = async ({ action, type = 'patch' }) => {
         let currentVersion = packageJson.version;
 
         log.info(`📦 Versão atual: ${currentVersion}`);
-        log.info(`🚀 Criando release para ${action}...`);
+        log.info(`🚀 Criando release para ${target}...`);
 
         try {
             log.info(`🔥 Gerando versão ${isBeta ? 'beta' : 'estável'} manualmente...`);
@@ -74,7 +74,7 @@ module.exports = async ({ action, type = 'patch' }) => {
         return;
     }
 
-    if (action === 'publish') {
+    if (target === 'publish') {
         if (!currentBranch.startsWith('release/')) {
             log.error('O comando "release publish" deve ser executado em uma branch de release.');
             process.exit(1);
@@ -108,7 +108,7 @@ module.exports = async ({ action, type = 'patch' }) => {
         return;
     }
 
-    if (action === 'finish') {
+    if (target === 'finish') {
         if (!currentBranch.startsWith('release/')) {
             log.error('O comando "release finish" deve ser executado em uma branch de release.');
             process.exit(1);
