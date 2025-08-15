@@ -91,6 +91,10 @@ module.exports = async ({ target, type = 'patch' }) => {
             git.merge(currentBranch);
             git.push();
 
+            // Cria e envia a tag agora!
+            git.run(`git tag -a v${version} -m "🚀 Release ${version}"`);
+            git.pushTags();
+
             if (!isBeta) {
                 git.checkout(devBranch);
                 git.pull();
@@ -98,9 +102,8 @@ module.exports = async ({ target, type = 'patch' }) => {
                 git.push();
             }
 
-            git.pushTags();
             git.checkout(currentBranch);
-            log.success(`Release ${version} publicada em ${targetBranch}!`);
+            log.success(`Release ${version} publicada em ${targetBranch} e tag v${version} criada!`);
         } catch (error) {
             log.error(`Erro ao publicar release: ${error.message}`);
             git.checkout(currentBranch);
