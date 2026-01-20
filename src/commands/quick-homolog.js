@@ -69,7 +69,18 @@ module.exports = async ({ noFinish }) => {
 
         log.info(`Preparando o merge da task "${originalBranch}" para "${releaseBranch}"...`);
         git.run(`git merge --squash ${originalBranch}`);
-        git.run(`git commit -m "🚀 Deploy da task '${originalBranch}' para ${releaseBranch}"`);
+        
+        // Verifica se há mudanças para fazer commit
+        const status = git.run(`git status --porcelain`).trim();
+        
+        if (status) {
+            // Há mudanças, faz o commit
+            git.run(`git commit -m "🚀 Deploy da task '${originalBranch}' para ${releaseBranch}"`);
+        } else {
+            // Não há mudanças, apenas informa
+            log.warn(`⚠️  Nenhuma mudança para fazer commit (task já está sincronizada com o release).`);
+        }
+        
         git.push(releaseBranch);
 
         log.success(`✅ Deploy da task concluído!`);
