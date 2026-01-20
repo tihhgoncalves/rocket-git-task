@@ -103,7 +103,31 @@ git-task release publish
 
 ---
 
-### 7️⃣ Finalizar uma task
+### 7️⃣ Homologação Rápida (Quick Homolog)
+
+Se você quer fazer uma homologação rapidinho de uma task, sem ficar executando vários comandos, use:
+
+```sh
+git-task quick-homolog
+```
+
+**O que isso faz automaticamente (enquanto você está na task):**
+
+1. ✅ Cria um release para homologação (ex: `release/1.2.3-beta.1`)
+2. ✅ Faz deploy da task para esse release
+3. ✅ Publica o release em `develop`
+4. ✅ Deleta a branch de release
+5. ✅ Volta para sua task original
+
+**Se você quer manter a branch de release** (sem deletar), use:
+
+```sh
+git-task quick-homolog --no-finish
+```
+
+---
+
+### 8️⃣ Finalizar uma task
 
 ```sh
 git-task finish
@@ -117,7 +141,7 @@ git-task finish --force
 
 ---
 
-### 8️⃣ Versão e Ajuda
+### 9️⃣ Versão e Ajuda
 
 Para exibir a versão atual:
 
