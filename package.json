@@ -14,6 +14,7 @@
     "gt:release:production": "git-task release production",
     "gt:finish": "git-task finish",
     "gt:finish:force": "git-task finish --force",
+    "gt:quick:homolog": "git-task quick-homolog",
     "gt:publish": "./.builds/publish.sh"
   },
   "repository": {

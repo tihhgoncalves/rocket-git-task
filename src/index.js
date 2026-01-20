@@ -10,6 +10,7 @@ const deploy = require('./commands/deploy');
 const release = require('./commands/release');
 const finish = require('./commands/finish');
 const update = require('./commands/update');
+const quickHomolog = require('./commands/quick-homolog');
 
 yargs(hideBin(process.argv))
     .usage(`
@@ -63,6 +64,13 @@ yargs(hideBin(process.argv))
         });
     }, finish)
     .command('update', '📌 Atualiza a task atual com as mudanças do develop', () => {}, update)
+    .command('quick-homolog', '⚡ Cria release, faz deploy e publica para homologação em uma única operação', (yargs) => {
+        yargs.option('no-finish', {
+            alias: 'nf',
+            type: 'boolean',
+            description: 'Mantém a branch de release sem deletar (por padrão ela é deletada)'
+        });
+    }, quickHomolog)
     .help()
     .version(`🚀 Rocket Git-Task v${version}`)
     .help()
