@@ -158,7 +158,7 @@ git-task finish --force
 
 ---
 
-### 9️⃣ Versão e Ajuda
+### 🔟 Versão e Ajuda
 
 Para exibir a versão atual:
 
@@ -180,6 +180,7 @@ O Rocket Git Task salva suas configurações diretamente no seu **`.git/config`*
 
 - `task.prod-branch`: Branch de produção (ex: `main` ou `master`).
 - `task.dev-branch`: Branch de homologação (ex: `develop`).
+- `task.backup-dir`: Diretório padrão para salvar backups das tasks.
 
 Para redefinir a configuração, basta rodar:
 
