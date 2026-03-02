@@ -11,6 +11,7 @@ const release = require('./commands/release');
 const finish = require('./commands/finish');
 const update = require('./commands/update');
 const quickHomolog = require('./commands/quick-homolog');
+const bkp = require('./commands/bkp');
 
 yargs(hideBin(process.argv))
     .usage(`
@@ -36,6 +37,7 @@ yargs(hideBin(process.argv))
     - release      Cria um novo release ou publica um release já criado
     - finish       Finaliza uma task após o deploy
     - update       Atualiza a task com mudanças do develop
+    - bkp          Cria um backup (ZIP) da task atual
     `)
     .command('init', '📌 Inicializa o Rocket Git-Task no repositório', () => {}, init)
     .command('create <name>', '📌 Cria uma nova task no fluxo de desenvolvimento', (yargs) => {
@@ -71,6 +73,7 @@ yargs(hideBin(process.argv))
             description: 'Mantém a branch de release sem deletar (por padrão ela é deletada)'
         });
     }, quickHomolog)
+    .command('bkp', '📦 Cria um backup (ZIP) da task atual', () => {}, bkp)
     .help()
     .version(`🚀 Rocket Git-Task v${version}`)
     .help()
