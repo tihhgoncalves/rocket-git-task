@@ -1,6 +1,6 @@
 {
   "name": "rocket-git-task",
-  "version": "1.7.17",
+  "version": "1.7.18",
   "description": "Automação de fluxo de trabalho no Git para tasks, deploy e releases.",
   "bin": {
     "git-task": "./src/index.js"
@@ -34,6 +34,7 @@
     "standard-version": "^9.5.0"
   },
   "dependencies": {
+    "archiver": "^7.0.1",
     "chalk": "^4.1.2",
     "inquirer": "^12.4.2",
     "yargs": "^17.7.2"
