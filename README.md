@@ -127,7 +127,24 @@ git-task quick-homolog --no-finish
 
 ---
 
-### 8️⃣ Finalizar uma task
+### 8️⃣ Criar backup de uma task
+
+Cria um arquivo ZIP com backup da task atual (deve estar em uma branch de task):
+
+```sh
+git-task bkp
+```
+
+O comando:
+- ✅ Verifica se você está em uma branch de task (`task/*`)
+- ✅ Pergunta o diretório para salvar o backup
+- ✅ Lembra o último diretório usado (deixe em branco para usar o mesmo)
+- ✅ Gera o arquivo: `task-nome-da-task-YYYY-MM-DDTHH-MM-SS.zip`
+- ✅ Inclui todos os arquivos versionados pelo Git
+
+---
+
+### 9️⃣ Finalizar uma task
 
 ```sh
 git-task finish
@@ -141,7 +158,7 @@ git-task finish --force
 
 ---
 
-### 9️⃣ Versão e Ajuda
+### 🔟 Versão e Ajuda
 
 Para exibir a versão atual:
 
@@ -163,6 +180,7 @@ O Rocket Git Task salva suas configurações diretamente no seu **`.git/config`*
 
 - `task.prod-branch`: Branch de produção (ex: `main` ou `master`).
 - `task.dev-branch`: Branch de homologação (ex: `develop`).
+- `task.backup-dir`: Diretório padrão para salvar backups das tasks.
 
 Para redefinir a configuração, basta rodar:
 
