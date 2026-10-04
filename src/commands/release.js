@@ -1,7 +1,34 @@
 const { getBranches } = require('../config');
 const git = require('../utils/git');
 const log = require('../utils/log');
+const {
+    nextDevelopVersionAfterProduction,
+    differsOnlyByVersion,
+} = require('../utils/version');
 const fs = require('fs');
+
+function resolvePackageJsonVersionConflict() {
+    const conflictedFiles = git.run('git diff --name-only --diff-filter=U')
+        .split('\n')
+        .filter(Boolean);
+
+    if (conflictedFiles.length !== 1 || conflictedFiles[0] !== 'package.json') {
+        return false;
+    }
+
+    const developPackageJson = JSON.parse(git.run('git show :2:package.json'));
+    const productionPackageJson = JSON.parse(git.run('git show :3:package.json'));
+
+    if (!differsOnlyByVersion(developPackageJson, productionPackageJson)) {
+        return false;
+    }
+
+    // Mantém o conteúdo de develop. A versão será recalculada após o merge.
+    fs.writeFileSync('package.json', JSON.stringify(developPackageJson, null, 2));
+    git.run('git add package.json');
+    git.run('git commit --no-edit');
+    return true;
+}
 
 module.exports = async ({ target, type = 'patch' }) => {
     const { prodBranch, devBranch } = getBranches();
@@ -99,7 +126,25 @@ module.exports = async ({ target, type = 'patch' }) => {
             if (!isBeta) {
                 git.checkout(devBranch);
                 git.pull();
-                git.merge(prodBranch); // merge main -> develop
+                const developPackageJson = JSON.parse(fs.readFileSync('package.json', 'utf8'));
+                try {
+                    git.merge(prodBranch); // merge main -> develop
+                } catch (mergeError) {
+                    if (!resolvePackageJsonVersionConflict()) {
+                        throw mergeError;
+                    }
+                    log.info('Conflito de versão do package.json resolvido automaticamente.');
+                }
+
+                const nextDevelopVersion = nextDevelopVersionAfterProduction(
+                    version,
+                    developPackageJson.version,
+                );
+                const syncedPackageJson = JSON.parse(fs.readFileSync('package.json', 'utf8'));
+                syncedPackageJson.version = nextDevelopVersion;
+                fs.writeFileSync('package.json', JSON.stringify(syncedPackageJson, null, 2));
+                git.run('git add package.json');
+                git.run(`git commit -m "🔖 Ajusta versão de homologação para ${nextDevelopVersion}"`);
                 git.push();
             }
 
@@ -110,7 +155,7 @@ module.exports = async ({ target, type = 'patch' }) => {
             log.info(`Tag criada v${version} criada!`);
 
             if (!isBeta) {
-                log.info(`Homolog (${devBranch}) sincronizado com as novidades da produção (${prodBranch})!`);
+                log.info(`Homolog (${devBranch}) sincronizado com as novidades da produção (${prodBranch}) e com uma nova versão beta!`);
             }
 
         } catch (error) {
