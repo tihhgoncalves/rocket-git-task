@@ -2,6 +2,7 @@ const { getBranches } = require('../config');
 const git = require('../utils/git');
 const log = require('../utils/log');
 const fs = require('fs');
+const { nextHomologVersion, restoreFileContents } = require('../utils/release-safety');
 
 module.exports = async ({ noFinish }) => {
     const { devBranch } = getBranches();
@@ -17,6 +18,11 @@ module.exports = async ({ noFinish }) => {
     // Verifica se existem arquivos não comittados
     git.ensureCleanWorkingDirectory();
 
+    let releaseBranch;
+    let packageJsonBeforeBump;
+    let releaseBranchCreated = false;
+    let releaseBranchPushed = false;
+
     try {
         log.info(`\n🚀 Iniciando fluxo rápido de homologação para a task "${currentBranch}"...\n`);
 
@@ -27,36 +33,27 @@ module.exports = async ({ noFinish }) => {
         git.checkout(devBranch);
         git.pull();
 
-        const packageJson = JSON.parse(fs.readFileSync('package.json', 'utf8'));
-        let currentVersion = packageJson.version;
+        packageJsonBeforeBump = fs.readFileSync('package.json', 'utf8');
+        const packageJson = JSON.parse(packageJsonBeforeBump);
+        const newVersion = nextHomologVersion(packageJson.version);
+        releaseBranch = `release/${newVersion}`;
 
-        const versionMatch = currentVersion.match(/^(\d+)\.(\d+)\.(\d+)(-beta\.(\d+))?$/);
-        if (!versionMatch) {
-            throw new Error(`❌ Erro ao interpretar a versão atual: ${currentVersion}`);
+        if (git.branchExists(releaseBranch)) {
+            throw new Error(
+                `A release "${releaseBranch}" já existe. Retome-a com "git checkout ${releaseBranch}" ou crie a próxima versão beta.`,
+            );
         }
 
-        let major = parseInt(versionMatch[1]) || 0;
-        let minor = parseInt(versionMatch[2]) || 0;
-        let patch = parseInt(versionMatch[3]) || 0;
-        let betaNumber = versionMatch[5] ? parseInt(versionMatch[5]) : null;
-
-        // Incrementa versão beta
-        if (betaNumber !== null) {
-            betaNumber++;
-        } else {
-            patch++;
-            betaNumber = 1;
-        }
-
-        const newVersion = `${major}.${minor}.${patch}-beta.${betaNumber}`;
+        // Cria a branch antes de modificar arquivos, evitando worktree sujo se ela já existir.
+        git.createBranch(releaseBranch);
+        releaseBranchCreated = true;
         packageJson.version = newVersion;
         fs.writeFileSync('package.json', JSON.stringify(packageJson, null, 2));
 
-        const releaseBranch = `release/${newVersion}`;
-        git.createBranch(releaseBranch);
         git.run(`git add package.json`);
         git.run(`git commit -m "🔖 Bump versão para ${newVersion}"`);
         git.run(`git push -u origin ${releaseBranch}`);
+        releaseBranchPushed = true;
 
         log.success(`✅ Release ${newVersion} criada!`);
 
@@ -129,10 +126,36 @@ module.exports = async ({ noFinish }) => {
 
     } catch (error) {
         log.error(`\n❌ Erro durante o fluxo de homologação rápida: ${error.message}\n`);
+
+        // O worktree iniciou limpo; portanto, qualquer pendência foi criada por este fluxo.
+        try {
+            git.abortMerge();
+        } catch (abortError) {
+            // Não havia merge em andamento.
+        }
+
+        try {
+            const packageJsonHasPendingChanges = git.run('git status --porcelain -- package.json');
+            if (packageJsonBeforeBump && packageJsonHasPendingChanges && fs.existsSync('package.json')) {
+                git.run('git restore --staged package.json');
+                restoreFileContents('package.json', packageJsonBeforeBump);
+            }
+        } catch (restoreError) {
+            log.error(`Não foi possível restaurar package.json automaticamente: ${restoreError.message}`);
+        }
+
         try {
             git.checkout(currentBranch);
         } catch (e) {
-            // ignora erro ao voltar
+            log.error(`Não foi possível retornar à branch "${currentBranch}": ${e.message}`);
+        }
+
+        if (releaseBranchCreated && !releaseBranchPushed) {
+            try {
+                git.deleteLocalBranch(releaseBranch);
+            } catch (deleteError) {
+                log.warn(`Não foi possível remover a release local temporária "${releaseBranch}".`);
+            }
         }
         process.exit(1);
     }
