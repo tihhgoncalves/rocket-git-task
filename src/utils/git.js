@@ -6,10 +6,46 @@ function run(command) {
 }
 
 function ensureCleanWorkingDirectory() {
-    if (run('git status --porcelain')) {
+    if (!isWorkingDirectoryClean()) {
         log.error('Existem alterações não commitadas. Faça commit ou stash antes de continuar.');
         process.exit(1);
     }
+}
+
+function isWorkingDirectoryClean() {
+    return !run('git status --porcelain');
+}
+
+function branchExists(name) {
+    try {
+        run(`git show-ref --verify --quiet refs/heads/${name}`);
+        return true;
+    } catch (error) {
+        try {
+            run('git remote get-url origin');
+        } catch (noRemoteError) {
+            return false;
+        }
+
+        try {
+            run(`git ls-remote --exit-code --heads origin ${name}`);
+            return true;
+        } catch (remoteError) {
+            // O Git retorna 2 quando a consulta foi bem-sucedida, mas a branch não existe.
+            if (remoteError.status === 2) {
+                return false;
+            }
+            throw new Error(`Não foi possível verificar a branch remota "${name}".`);
+        }
+    }
+}
+
+function abortMerge() {
+    run('git merge --abort');
+}
+
+function deleteLocalBranch(name) {
+    run(`git branch -D ${name}`);
 }
 
 function getCurrentBranch() {
@@ -80,6 +116,10 @@ function ensureBranchesExist(prodBranch, devBranch) {
 
 module.exports = {
     ensureCleanWorkingDirectory,
+    isWorkingDirectoryClean,
+    branchExists,
+    abortMerge,
+    deleteLocalBranch,
     getCurrentBranch,
     checkout,
     pull,
