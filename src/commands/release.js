@@ -176,15 +176,32 @@ module.exports = async ({ target, type = 'patch' }) => {
         const isBeta = version.includes('beta');
         const targetBranch = isBeta ? devBranch : prodBranch;
 
-        if (!git.isMerged(currentBranch, targetBranch)) {
+        if (!git.isAncestor(currentBranch, targetBranch)) {
             log.error(`O release ${currentBranch} ainda não foi publicado em ${targetBranch}.`);
             process.exit(1);
         }
 
         try {
+            const remoteReleaseCommit = git.remoteBranchCommit(currentBranch);
             git.checkout(targetBranch);
-            git.deleteBranch(currentBranch);
+            // A ancestralidade foi validada acima; o upstream não deve impedir a limpeza local.
+            git.deleteLocalBranch(currentBranch, true);
             log.success(`Release ${version} finalizado!`);
+            log.info(`Merge de ${currentBranch} em ${targetBranch} confirmado.`);
+            log.info(`Release ${currentBranch} foi removido localmente após o merge em ${targetBranch}.`);
+
+            if (!remoteReleaseCommit) {
+                log.info(`Nenhuma branch remota para ${currentBranch} precisou ser removida.`);
+            } else if (git.isAncestor(remoteReleaseCommit, targetBranch)) {
+                try {
+                    git.deleteRemoteBranch(currentBranch);
+                    log.info(`Branch remota ${currentBranch} removida.`);
+                } catch (remoteError) {
+                    log.warn(`Branch remota ${currentBranch} permaneceu remota: ${remoteError.message}`);
+                }
+            } else {
+                log.warn(`Branch remota ${currentBranch} foi mantida porque possui commits que não estão em ${targetBranch}.`);
+            }
         } catch (error) {
             log.error(`Erro ao finalizar release: ${error.message}`);
             process.exit(1);

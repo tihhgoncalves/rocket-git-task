@@ -40,6 +40,38 @@ try {
     execFileSync('git', ['push', '-q', 'origin', 'release/0.0.3-beta.6']);
     execFileSync('git', ['branch', '-D', 'release/0.0.3-beta.6']);
     assert.strictEqual(git.branchExists('release/0.0.3-beta.6'), true);
+
+    execFileSync('git', ['checkout', '-q', '-b', 'release/0.0.4-beta.1']);
+    fs.writeFileSync('release.txt', 'release');
+    execFileSync('git', ['add', 'release.txt']);
+    execFileSync('git', ['commit', '-qm', 'release']);
+    execFileSync('git', ['push', '-q', '-u', 'origin', 'release/0.0.4-beta.1']);
+    fs.writeFileSync('release.txt', 'release ahead');
+    execFileSync('git', ['commit', '-am', 'release ahead', '-q']);
+    const localReleaseCommit = execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim();
+    const remoteReleaseCommit = git.remoteBranchCommit('release/0.0.4-beta.1');
+    assert.notStrictEqual(localReleaseCommit, remoteReleaseCommit);
+    execFileSync('git', ['checkout', '-q', '-']);
+    execFileSync('git', ['merge', '--no-ff', '--no-edit', '-q', 'release/0.0.4-beta.1']);
+    assert.strictEqual(git.isAncestor('release/0.0.4-beta.1', 'HEAD'), true);
+    assert.strictEqual(git.isAncestor(remoteReleaseCommit, 'HEAD'), true);
+    git.deleteLocalBranch('release/0.0.4-beta.1', true);
+    assert.strictEqual(git.branchExists('release/0.0.4-beta.1'), true);
+
+    execFileSync('git', ['checkout', '-q', '-b', 'task/conflicting-change']);
+    fs.writeFileSync('conflict.txt', 'task');
+    execFileSync('git', ['add', 'conflict.txt']);
+    execFileSync('git', ['commit', '-qm', 'task conflict']);
+    execFileSync('git', ['checkout', '-q', '-']);
+    fs.writeFileSync('conflict.txt', 'develop');
+    execFileSync('git', ['add', 'conflict.txt']);
+    execFileSync('git', ['commit', '-qm', 'develop conflict']);
+    assert.throws(() => execFileSync('git', ['merge', '--squash', 'task/conflicting-change']));
+    assert.strictEqual(git.hasUnmergedPaths(), true);
+    assert.strictEqual(git.rollbackMerge(), 'reset');
+    assert.strictEqual(git.hasUnmergedPaths(), false);
+    assert.strictEqual(git.isWorkingDirectoryClean(), true);
+
     assert.strictEqual(git.isWorkingDirectoryClean(), true);
     fs.writeFileSync('README.md', 'dirty');
     assert.strictEqual(git.isWorkingDirectoryClean(), false);
