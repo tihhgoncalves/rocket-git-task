@@ -128,10 +128,9 @@ module.exports = async ({ noFinish }) => {
         log.error(`\n❌ Erro durante o fluxo de homologação rápida: ${error.message}\n`);
 
         // O worktree iniciou limpo; portanto, qualquer pendência foi criada por este fluxo.
-        try {
-            git.abortMerge();
-        } catch (abortError) {
-            // Não havia merge em andamento.
+        const mergeRollback = git.rollbackMerge();
+        if (mergeRollback === 'reset') {
+            log.info('Conflito do merge de deploy desfeito; a release foi mantida para retomada.');
         }
 
         try {
