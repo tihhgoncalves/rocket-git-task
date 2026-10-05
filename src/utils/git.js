@@ -44,8 +44,49 @@ function abortMerge() {
     run('git merge --abort');
 }
 
-function deleteLocalBranch(name) {
-    run(`git branch -D ${name}`);
+function hasUnmergedPaths() {
+    return Boolean(run('git diff --name-only --diff-filter=U'));
+}
+
+function rollbackMerge() {
+    // O merge --squash não cria MERGE_HEAD; em caso de conflito, --abort falha.
+    if (hasUnmergedPaths()) {
+        run('git reset --merge');
+        return 'reset';
+    }
+
+    try {
+        abortMerge();
+        return 'abort';
+    } catch (error) {
+        return null;
+    }
+}
+
+function deleteLocalBranch(name, force = true) {
+    run(`git branch ${force ? '-D' : '-d'} ${name}`);
+}
+
+function remoteBranchCommit(name) {
+    try {
+        run('git remote get-url origin');
+    } catch (noRemoteError) {
+        return null;
+    }
+
+    try {
+        const result = run(`git ls-remote --exit-code --heads origin ${name}`);
+        return result.split(/\s+/)[0];
+    } catch (error) {
+        if (error.status === 2) {
+            return null;
+        }
+        throw new Error(`Não foi possível verificar a branch remota "${name}".`);
+    }
+}
+
+function deleteRemoteBranch(name) {
+    run(`git push origin --delete ${name}`);
 }
 
 function getCurrentBranch() {
@@ -105,8 +146,16 @@ function deleteBranch(name, force = false) {
 }
 
 function isMerged(branch, target) {
-    const mergedBranches = run(`git branch --merged ${target}`);
-    return mergedBranches.includes(branch);
+    return isAncestor(branch, target);
+}
+
+function isAncestor(ancestor, descendant) {
+    try {
+        run(`git merge-base --is-ancestor ${ancestor} ${descendant}`);
+        return true;
+    } catch (error) {
+        return false;
+    }
 }
 
 function ensureBranchesExist(prodBranch, devBranch) {
@@ -119,7 +168,11 @@ module.exports = {
     isWorkingDirectoryClean,
     branchExists,
     abortMerge,
+    hasUnmergedPaths,
+    rollbackMerge,
     deleteLocalBranch,
+    remoteBranchCommit,
+    deleteRemoteBranch,
     getCurrentBranch,
     checkout,
     pull,
@@ -129,6 +182,7 @@ module.exports = {
     createBranch,
     deleteBranch,
     isMerged,
+    isAncestor,
     ensureBranchesExist,
     run,
     getConfig,
