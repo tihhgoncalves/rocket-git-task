@@ -39,6 +39,15 @@ module.exports = async () => {
     } catch (error) {
         log.error(`Falha ao atualizar a task "${currentBranch}".`);
         log.error(`Erro: ${error.message}`);
+        const mergeRollback = git.rollbackMerge();
+        if (mergeRollback === 'reset') {
+            log.info(`Conflito ao atualizar com ${prodBranch} desfeito; a task permaneceu inalterada.`);
+        }
+        try {
+            git.checkout(currentBranch);
+        } catch (checkoutError) {
+            log.error(`Não foi possível retornar à task "${currentBranch}": ${checkoutError.message}`);
+        }
         process.exit(1);
     }
 };

@@ -160,7 +160,15 @@ module.exports = async ({ target, type = 'patch' }) => {
 
         } catch (error) {
             log.error(`Erro ao publicar release: ${error.message}`);
-            git.checkout(currentBranch);
+            const mergeRollback = git.rollbackMerge();
+            if (mergeRollback === 'reset') {
+                log.info('Conflito de publicação desfeito; a release permanece disponível para retomada.');
+            }
+            try {
+                git.checkout(currentBranch);
+            } catch (checkoutError) {
+                log.error(`Não foi possível retornar à release "${currentBranch}": ${checkoutError.message}`);
+            }
             process.exit(1);
         }
         return;
