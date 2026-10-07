@@ -24,31 +24,37 @@ module.exports = async ({ target }) => {
     log.info(`Fazendo deploy da task "${currentBranch}" para "${targetBranch}"...`);
 
     try {
-      // Checkout na branch do release
+        // Checkout na branch do release
         git.checkout(targetBranch);
         git.pull();
 
-      // Faz o merge com squash, permitindo conflitos
+        // Faz o merge com squash, permitindo conflitos
         log.info(`Preparando o merge da task "${currentBranch}" para "${targetBranch}"...`);
         git.run(`git merge --squash ${currentBranch}`);
 
-      // Faz o commit com mensagem personalizada
+        // Faz o commit com mensagem personalizada
         git.run(
             `git commit -m "🚀 Deploy da task '${currentBranch}' para ${targetBranch}"`
         );
 
         git.push(targetBranch);
 
-      // Volta para a branch original
+        // Volta para a branch original sem trazer conteúdo da release para a task.
         git.checkout(currentBranch);
 
         log.success(`Deploy da task "${currentBranch}" concluído com sucesso!`);
     } catch (error) {
         log.error(`Falha ao fazer deploy da task "${currentBranch}".`);
         log.error(`Erro: ${error.message}`);
+        const mergeRollback = git.rollbackMerge();
+        if (mergeRollback === 'reset') {
+            log.info(`Conflito do deploy desfeito em ${targetBranch}; a task permaneceu inalterada.`);
+        }
+        try {
+            git.checkout(currentBranch);
+        } catch (checkoutError) {
+            log.error(`Não foi possível retornar à task "${currentBranch}": ${checkoutError.message}`);
+        }
         process.exit(1);
-    } finally {
-        // garante que no final sempre volta pra branch original
-        git.checkout(currentBranch);
     }
 };
