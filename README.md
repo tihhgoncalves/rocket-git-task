@@ -101,6 +101,8 @@ git-task release publish
 
 - Se for um release de produção, além de publicar na main, o develop será sincronizado automaticamente com as novidades da produção e receberá uma nova versão beta. Por exemplo, `0.1.2` em produção com `0.1.2-beta.4` em homologação passa a `0.1.3-beta.1`; se a homologação já estiver em uma versão futura, `0.2.0-beta.3`, ela passa a `0.2.0-beta.4`. Um conflito em `package.json` que envolva somente a versão também é resolvido automaticamente; conflitos em outros campos continuam sendo sinalizados para revisão.
 
+Releases de homologação não são sincronizadas de volta para branches `task/*`: uma mesma release pode reunir várias tasks, que devem permanecer isoladas. Apenas a publicação em produção sincroniza automaticamente `main` para `develop`.
+
 ---
 
 ### 7️⃣ Homologação Rápida (Quick Homolog)

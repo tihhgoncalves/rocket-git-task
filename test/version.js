@@ -62,6 +62,7 @@ try {
     fs.writeFileSync('conflict.txt', 'task');
     execFileSync('git', ['add', 'conflict.txt']);
     execFileSync('git', ['commit', '-qm', 'task conflict']);
+    const taskConflictCommit = execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim();
     execFileSync('git', ['checkout', '-q', '-']);
     fs.writeFileSync('conflict.txt', 'develop');
     execFileSync('git', ['add', 'conflict.txt']);
@@ -71,6 +72,10 @@ try {
     assert.strictEqual(git.rollbackMerge(), 'reset');
     assert.strictEqual(git.hasUnmergedPaths(), false);
     assert.strictEqual(git.isWorkingDirectoryClean(), true);
+    execFileSync('git', ['checkout', '-q', 'task/conflicting-change']);
+    assert.strictEqual(git.getCurrentBranch(), 'task/conflicting-change');
+    assert.strictEqual(execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim(), taskConflictCommit);
+    execFileSync('git', ['checkout', '-q', '-']);
 
     assert.strictEqual(git.isWorkingDirectoryClean(), true);
     fs.writeFileSync('README.md', 'dirty');
