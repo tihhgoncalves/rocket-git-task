@@ -3,6 +3,7 @@ const git = require('../utils/git');
 const log = require('../utils/log');
 const fs = require('fs');
 const { nextHomologVersion, restoreFileContents } = require('../utils/release-safety');
+const { deploymentCommitMessage, snapshotForTask } = require('../utils/task-deployment');
 
 module.exports = async ({ noFinish }) => {
     const { devBranch } = getBranches();
@@ -22,6 +23,7 @@ module.exports = async ({ noFinish }) => {
     let packageJsonBeforeBump;
     let releaseBranchCreated = false;
     let releaseBranchPushed = false;
+    let deployedTaskSnapshot;
 
     try {
         log.info(`\n🚀 Iniciando fluxo rápido de homologação para a task "${currentBranch}"...\n`);
@@ -64,15 +66,27 @@ module.exports = async ({ noFinish }) => {
         git.checkout(releaseBranch);
         git.pull();
 
-        log.info(`Preparando o merge da task "${originalBranch}" para "${releaseBranch}"...`);
-        git.run(`git merge --squash ${originalBranch}`);
+        deployedTaskSnapshot = git.getCommitHash(originalBranch);
+        const releaseSnapshot = snapshotForTask(git.getCommitMessages(releaseBranch), originalBranch);
+        const publishedSnapshot = git.getTaskDeploymentSnapshot(originalBranch);
+        const snapshot = [releaseSnapshot, publishedSnapshot]
+            .filter((candidate) => candidate && git.isAncestor(candidate, deployedTaskSnapshot))
+            .reduce((latest, candidate) => !latest || git.isAncestor(latest, candidate) ? candidate : latest, null);
+
+        if (snapshot) {
+            log.info(`Aplicando apenas alterações da task após ${snapshot.slice(0, 7)}...`);
+            git.applyCommitDelta(snapshot, deployedTaskSnapshot);
+        } else {
+            log.info(`Preparando o merge da task "${originalBranch}" para "${releaseBranch}"...`);
+            git.run(`git merge --squash ${originalBranch}`);
+        }
         
         // Verifica se há mudanças para fazer commit
         const status = git.run(`git status --porcelain`).trim();
         
         if (status) {
             // Há mudanças, faz o commit
-            git.run(`git commit -m "🚀 Deploy da task '${originalBranch}' para ${releaseBranch}"`);
+            git.run(`git commit -m "${deploymentCommitMessage(originalBranch, releaseBranch, deployedTaskSnapshot)}"`);
         } else {
             // Não há mudanças, apenas informa
             log.warn(`⚠️  Nenhuma mudança para fazer commit (task já está sincronizada com o release).`);
@@ -89,6 +103,12 @@ module.exports = async ({ noFinish }) => {
         git.pull();
         git.merge(releaseBranch);
         git.push();
+
+        try {
+            git.setTaskDeploymentSnapshot(originalBranch, deployedTaskSnapshot);
+        } catch (markerError) {
+            log.warn(`Release publicada, mas não foi possível registrar o marco da task: ${markerError.message}`);
+        }
 
         // Cria e envia a tag
         git.run(`git tag -a v${newVersion} -m "🚀 Release ${newVersion}"`);

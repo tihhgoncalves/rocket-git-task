@@ -89,6 +89,56 @@ function deleteRemoteBranch(name) {
     run(`git push origin --delete ${name}`);
 }
 
+function getCommitHash(ref) {
+    return run(`git rev-parse ${ref}`);
+}
+
+function getCommitMessages(range) {
+    return run(`git log ${range} --format=%B%x1e`);
+}
+
+function deploymentTagName(taskBranch) {
+    return `git-task/deployed/${Buffer.from(taskBranch).toString('hex')}`;
+}
+
+function getRemoteTagCommit(tagName) {
+    try {
+        run('git remote get-url origin');
+    } catch (noRemoteError) {
+        return null;
+    }
+
+    try {
+        return run(`git ls-remote --exit-code --tags origin refs/tags/${tagName}`).split(/\s+/)[0];
+    } catch (error) {
+        if (error.status === 2) {
+            return null;
+        }
+        throw new Error(`Não foi possível verificar o marco remoto da task.`);
+    }
+}
+
+function getTaskDeploymentSnapshot(taskBranch) {
+    const tagName = deploymentTagName(taskBranch);
+    return getRemoteTagCommit(tagName) || (() => {
+        try {
+            return getCommitHash(`refs/tags/${tagName}`);
+        } catch (error) {
+            return null;
+        }
+    })();
+}
+
+function setTaskDeploymentSnapshot(taskBranch, snapshot) {
+    const tagName = deploymentTagName(taskBranch);
+    run(`git tag -f ${tagName} ${snapshot}`);
+    run(`git push origin +refs/tags/${tagName}`);
+}
+
+function applyCommitDelta(base, head) {
+    run(`git diff --binary ${base} ${head} | git apply --index --3way`);
+}
+
 function getCurrentBranch() {
     return run('git rev-parse --abbrev-ref HEAD');
 }
@@ -173,6 +223,11 @@ module.exports = {
     deleteLocalBranch,
     remoteBranchCommit,
     deleteRemoteBranch,
+    getCommitHash,
+    getCommitMessages,
+    getTaskDeploymentSnapshot,
+    setTaskDeploymentSnapshot,
+    applyCommitDelta,
     getCurrentBranch,
     checkout,
     pull,
