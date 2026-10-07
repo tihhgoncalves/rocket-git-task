@@ -1,5 +1,6 @@
 const git = require('../utils/git');
 const log = require('../utils/log');
+const { deploymentCommitMessage, snapshotForTask } = require('../utils/task-deployment');
 
 module.exports = async ({ target }) => {
     const currentBranch = git.getCurrentBranch();
@@ -28,14 +29,23 @@ module.exports = async ({ target }) => {
         git.checkout(targetBranch);
         git.pull();
 
-        // Faz o merge com squash, permitindo conflitos
-        log.info(`Preparando o merge da task "${currentBranch}" para "${targetBranch}"...`);
-        git.run(`git merge --squash ${currentBranch}`);
+        const taskHead = git.getCommitHash(currentBranch);
+        const releaseSnapshot = snapshotForTask(git.getCommitMessages(targetBranch), currentBranch);
+        const publishedSnapshot = git.getTaskDeploymentSnapshot(currentBranch);
+        const snapshot = [releaseSnapshot, publishedSnapshot]
+            .filter((candidate) => candidate && git.isAncestor(candidate, taskHead))
+            .reduce((latest, candidate) => !latest || git.isAncestor(latest, candidate) ? candidate : latest, null);
+
+        if (snapshot) {
+            log.info(`Aplicando apenas alterações da task após ${snapshot.slice(0, 7)}...`);
+            git.applyCommitDelta(snapshot, taskHead);
+        } else {
+            log.info(`Preparando o merge da task "${currentBranch}" para "${targetBranch}"...`);
+            git.run(`git merge --squash ${currentBranch}`);
+        }
 
         // Faz o commit com mensagem personalizada
-        git.run(
-            `git commit -m "🚀 Deploy da task '${currentBranch}' para ${targetBranch}"`
-        );
+        git.run(`git commit -m "${deploymentCommitMessage(currentBranch, targetBranch, taskHead)}"`);
 
         git.push(targetBranch);
 
