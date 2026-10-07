@@ -9,12 +9,20 @@ const {
 } = require('../src/utils/version');
 const git = require('../src/utils/git');
 const { nextHomologVersion, restoreFileContents } = require('../src/utils/release-safety');
+const {
+    deploymentCommitMessage,
+    parseDeploymentSnapshots,
+    snapshotForTask,
+} = require('../src/utils/task-deployment');
 
 assert.strictEqual(
     nextDevelopVersionAfterProduction('0.1.2', '0.1.2-beta.4'),
     '0.1.3-beta.1',
 );
 assert.strictEqual(nextHomologVersion('0.0.3-beta.5'), '0.0.3-beta.6');
+const deploymentMessage = deploymentCommitMessage('task/delta', 'release/0.0.4-beta.1', 'abcdef1');
+assert.deepStrictEqual(parseDeploymentSnapshots(deploymentMessage), [{ taskBranch: 'task/delta', snapshot: 'abcdef1' }]);
+assert.strictEqual(snapshotForTask(deploymentMessage, 'task/delta'), 'abcdef1');
 
 const temporaryPackageJson = path.join(os.tmpdir(), `rocket-git-task-${process.pid}-package.json`);
 fs.writeFileSync(temporaryPackageJson, '{"version":"0.0.3-beta.6"}');
@@ -76,6 +84,22 @@ try {
     assert.strictEqual(git.getCurrentBranch(), 'task/conflicting-change');
     assert.strictEqual(execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim(), taskConflictCommit);
     execFileSync('git', ['checkout', '-q', '-']);
+
+    execFileSync('git', ['checkout', '-q', '-b', 'task/delta']);
+    fs.writeFileSync('historical-change.txt', 'already deployed');
+    execFileSync('git', ['add', 'historical-change.txt']);
+    execFileSync('git', ['commit', '-qm', 'historical task change']);
+    const deployedSnapshot = git.getCommitHash('HEAD');
+    fs.writeFileSync('new-delta.txt', 'deploy only this change');
+    execFileSync('git', ['add', 'new-delta.txt']);
+    execFileSync('git', ['commit', '-qm', 'new task change']);
+    git.setTaskDeploymentSnapshot('task/delta', deployedSnapshot);
+    assert.strictEqual(git.getTaskDeploymentSnapshot('task/delta'), deployedSnapshot);
+    execFileSync('git', ['checkout', '-q', '-']);
+    git.applyCommitDelta(deployedSnapshot, 'task/delta');
+    assert.strictEqual(fs.existsSync('historical-change.txt'), false);
+    assert.strictEqual(fs.readFileSync('new-delta.txt', 'utf8'), 'deploy only this change');
+    execFileSync('git', ['reset', '--hard', '-q']);
 
     assert.strictEqual(git.isWorkingDirectoryClean(), true);
     fs.writeFileSync('README.md', 'dirty');

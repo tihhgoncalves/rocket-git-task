@@ -103,6 +103,8 @@ git-task release publish
 
 Releases de homologação não são sincronizadas de volta para branches `task/*`: uma mesma release pode reunir várias tasks, que devem permanecer isoladas. Apenas a publicação em produção sincroniza automaticamente `main` para `develop`.
 
+Ao publicar uma homologação, o GitTask registra o snapshot aplicado de cada task. Em releases posteriores — ou ao retomar uma release interrompida — apenas o delta desde esse snapshot é aplicado, evitando reaplicar mudanças que já entraram em homologações anteriores.
+
 ---
 
 ### 7️⃣ Homologação Rápida (Quick Homolog)

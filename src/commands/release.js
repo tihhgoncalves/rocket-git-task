@@ -5,6 +5,7 @@ const {
     nextDevelopVersionAfterProduction,
     differsOnlyByVersion,
 } = require('../utils/version');
+const { parseDeploymentSnapshots } = require('../utils/task-deployment');
 const fs = require('fs');
 
 function resolvePackageJsonVersionConflict() {
@@ -113,10 +114,22 @@ module.exports = async ({ target, type = 'patch' }) => {
         const targetBranch = isBeta ? devBranch : prodBranch;
 
         try {
+            const mergeBase = git.run(`git merge-base ${targetBranch} ${currentBranch}`);
+            const deploymentSnapshots = isBeta
+                ? parseDeploymentSnapshots(git.getCommitMessages(`${mergeBase}..${currentBranch}`))
+                : [];
             git.checkout(targetBranch);
             git.pull();
             git.merge(currentBranch);
             git.push();
+
+            for (const { taskBranch, snapshot } of deploymentSnapshots) {
+                try {
+                    git.setTaskDeploymentSnapshot(taskBranch, snapshot);
+                } catch (markerError) {
+                    log.warn(`Release publicada, mas não foi possível registrar o marco de ${taskBranch}: ${markerError.message}`);
+                }
+            }
 
             // Cria e envia a tag agora!
             git.run(`git tag -a v${version} -m "🚀 Release ${version}"`);
